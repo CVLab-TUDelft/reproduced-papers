@@ -11,13 +11,13 @@ function ReprodCard({ reprod }) {
   return (
     <div id={reprod.id} className="card mb-3">
       <div className="card-body">
-        <h3 className="card-title">{escape(data.title)}</h3>
-        <h5>
-          by{' '}
-          <span className="text-muted">
-            {data.authors.map(author => escape(author)).join(', ')}
-          </span>
-        </h5>
+        <h3 className="card-title">
+          {escape(data.title)}
+          <br />
+          <small className="text-muted">
+            by {data.authors.map(author => escape(author)).join(', ')}
+          </small>
+        </h3>
         <p className="card-text">{escape(data.description)}</p>
         <div className="btn-group" role="group">
           <a
@@ -99,7 +99,7 @@ function PaperItem({ paper }) {
       {reprodsLoading && <Spinner />}
       {!reprodsLoading && reprods.length > 0 && (
         <>
-          <h2 className="mt-3">Reproductions</h2>
+          <h3 className="mt-3">Reproductions</h3>
           {reprods.map(reprod => (
             <ReprodCard key={reprod.id} reprod={reprod} />
           ))}

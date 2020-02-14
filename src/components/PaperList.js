@@ -9,13 +9,13 @@ function PaperCard({ paper }) {
   return (
     <div className="card mb-3">
       <div className="card-body">
-        <h3 className="card-title">{escape(data.title)}</h3>
-        <h5>
-          by{' '}
-          <span className="text-muted">
-            {data.authors.map(author => escape(author)).join(', ')}
-          </span>
-        </h5>
+        <h3 className="card-title">
+          {escape(data.title)}
+          <br />
+          <small className="text-muted">
+            by {data.authors.map(author => escape(author)).join(', ')}
+          </small>
+        </h3>
         <p className="card-text">{escape(data.abstract)}</p>
         <Link className="btn btn-secondary" to={`/papers/${paper.id}`}>
           Detail
