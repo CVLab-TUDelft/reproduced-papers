@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useState } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import { useHistory, Link } from 'react-router-dom';
 import { escape } from 'lodash/fp';
@@ -22,16 +22,15 @@ function ReprodForm({ paper }) {
     authors: '',
     urlBlog: '',
     urlCode: '',
-    publish: false,
+    published: false,
   });
   const firebase = useFirebase();
   const authUser = firebase.authUser;
-  console.log(authUser);
-
   const algolia = useAlgolia();
   const { addToast } = useToasts();
   const history = useHistory();
   const paperId = paper.id;
+  const [loading, setLoading] = useState(false);
 
   function handleChange(event) {
     dispatch({
@@ -59,12 +58,19 @@ function ReprodForm({ paper }) {
       createdBy: authUser.uid,
     };
     try {
+      setLoading(true);
       const doc = await firebase.reprods(paperId).add(reprod);
-      await algolia.addReprod({ ...reprod, objectID: doc.id, paperId });
+      const snapshot = await doc.get();
+      await algolia.addReprod({
+        ...snapshot.data(),
+        objectID: doc.id,
+        paperId,
+      });
       addToast('The reproduction was submitted', { appearance: 'success' });
-      history.push(`/papers/${paperId}`);
+      history.push(`/papers/${paperId}#${doc.id}`);
     } catch (err) {
       addToast(err.message, { appearance: 'error' });
+      setLoading(false);
     }
   }
 
@@ -154,7 +160,7 @@ function ReprodForm({ paper }) {
             />
           </div>
         </div>
-        <Button loading={false} />
+        <Button loading={loading} />
       </form>
     </>
   );

@@ -22,7 +22,7 @@ function PaperForm() {
     authors: '',
     urlAbstract: '',
     urlPDF: '',
-    publish: false,
+    published: false,
   });
   const firebase = useFirebase();
   const authUser = firebase.authUser;
@@ -30,6 +30,7 @@ function PaperForm() {
   const { addToast } = useToasts();
   const history = useHistory();
   const [focused, setFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   function handleChange(event) {
     dispatch({
@@ -48,12 +49,15 @@ function PaperForm() {
       createdBy: authUser.uid,
     };
     try {
+      setLoading(true);
       const doc = await firebase.papers().add(paper);
-      await algolia.addPaper({ ...paper, objectID: doc.id });
+      const snapshot = await doc.get();
+      await algolia.addPaper({ ...snapshot.data(), objectID: doc.id });
       addToast('The paper was submitted', { appearance: 'success' });
       history.push(`/papers/${doc.id}`);
     } catch (err) {
       addToast(err.message, { appearance: 'error' });
+      setLoading(false);
     }
   }
 
@@ -190,7 +194,7 @@ function PaperForm() {
             required
           />
         </div>
-        <Button loading={false} />
+        <Button loading={loading} />
       </form>
     </>
   );
