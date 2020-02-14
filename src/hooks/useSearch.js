@@ -38,12 +38,12 @@ export default function useSearch(index) {
     let timeoutId;
     if (query.length > 2) {
       timeoutId = setTimeout(() => {
+        const params = {};
+        if (!authUser || authUser.profile !== 'admin') {
+          params.filters = 'published=1';
+        }
         algolia
-          .search(index, query, {
-            filters: authUser
-              ? `publish:1 OR createdBy:${authUser.uid}`
-              : 'publish:1',
-          })
+          .search(index, query, params)
           .then(result => {
             if (!canceled) {
               dispatch({ type: 'SUCCESS', hits: result.hits });

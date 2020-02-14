@@ -31,10 +31,10 @@ export default class FirebaseAPI {
     this.user(uid)
       .get()
       .then(snapshot => {
-        if (!snapshot.exists) {
-          return {};
+        let user = {};
+        if (snapshot.exists) {
+          user = snapshot.data();
         }
-        const user = snapshot.data();
         if (!user.role) {
           user.role = 'user';
         }
@@ -44,8 +44,8 @@ export default class FirebaseAPI {
   onAuthStateChanged = listener =>
     this.auth.onAuthStateChanged(authUser => {
       if (!authUser) {
-        this.authUser = authUser;
-        listener(authUser);
+        this.authUser = null;
+        listener(null);
         return;
       }
       this.getProfile(authUser.uid).then(profile => {
@@ -61,18 +61,24 @@ export default class FirebaseAPI {
 
   getPaper = id => this.paper(id).get();
 
-  getPapers = () =>
-    this.papers()
-      .get()
-      .then(snapshot => snapshot.docs);
+  getPapers = async () => {
+    let query = this.papers();
+    if (this.authUser && this.authUser.profile.role !== 'admin') {
+      query = query.where('published', '==', true);
+    }
+    return query.get().then(snapshot => snapshot.docs);
+  };
 
   reprod = (paperId, id) =>
     this.db.collection(`papers/${paperId}/reprods/${id}`);
 
   reprods = paperId => this.db.collection(`papers/${paperId}/reprods`);
 
-  getReprodsOfPaper = paperId =>
-    this.reprods(paperId)
-      .get()
-      .then(snapshot => snapshot.docs);
+  getReprodsOfPaper = async paperId => {
+    let query = this.reprods(paperId);
+    if (this.authUser && this.authUser.profile.role !== 'admin') {
+      query = query.where('published', '==', true);
+    }
+    return query.get().then(snapshot => snapshot.docs);
+  };
 }
