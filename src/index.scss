@@ -1,0 +1,17 @@
+@import '~bootstrap/scss/bootstrap.scss';
+
+$enable-responsive-font-sizes: true;
+
+body {
+  padding-top: 5rem;
+}
+
+.my-toast-container {
+  top: 4rem !important;
+  z-index: $zindex-popover !important;
+}
+
+.my-toast {
+  width: auto !important;
+  max-width: 400px;
+}
