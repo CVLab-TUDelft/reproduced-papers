@@ -20,14 +20,16 @@ function ReprodCard({ reprod }) {
         </h3>
         <p className="card-text">{escape(data.description)}</p>
         <div className="btn-group" role="group">
-          <a
-            className="btn btn-primary"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={data.urlBlog}
-          >
-            Detail
-          </a>
+          {data.urlBlog && (
+            <a
+              className="btn btn-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={data.urlBlog}
+            >
+              Detail
+            </a>
+          )}
           <a
             className="btn btn-secondary"
             target="_blank"
