@@ -8,9 +8,9 @@ import Footer from './Footer';
 import Spinner from './Spinner';
 import Home from './Home';
 import SubmitPaper from './SubmitPaper';
-import SubmitReprod from './SubmitReprod';
 import Papers from './Papers';
 import Paper from './Paper';
+import Admin from './Admin';
 
 function App() {
   const loading = useAuthentication();
@@ -30,19 +30,14 @@ function App() {
           <Route exact path="/submit-paper">
             <SubmitPaper />
           </Route>
-          <Route exact path="/submit-reproduction/:paperId">
-            <SubmitReprod />
+          <Route exact path="/papers">
+            <Papers />
           </Route>
-          <Route path="/papers">
-            <Route exact path="/papers">
-              <Papers />
-            </Route>
-            <Route exact path="/papers/:paperId">
-              <Paper />
-            </Route>
-            <Route exact path="/papers/:paperId/submit-reproduction">
-              <Paper />
-            </Route>
+          <Route path="/papers/:paperId">
+            <Paper />
+          </Route>
+          <Route path="/admin">
+            <Admin />
           </Route>
         </Switch>
       </main>

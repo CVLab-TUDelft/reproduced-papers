@@ -38,10 +38,10 @@ function Paper({ authUser }) {
 
   return (
     <Switch>
-      <Route exact path="/papers/:id">
+      <Route exact path="/papers/:paperId">
         <PaperItem paper={paper} />
       </Route>
-      <Route path="/papers/:id">
+      <Route path="/papers/:paperId/submit-reproduction">
         <SubmitReprod paper={paper} authUser={authUser} />
       </Route>
     </Switch>
