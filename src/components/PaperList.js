@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { get } from 'lodash/fp';
+import { get, truncate } from 'lodash/fp';
 
 import Button from './Button';
 import { useFirebase } from '../hooks';
@@ -18,7 +18,7 @@ function PaperCard({ paper }) {
           <br />
           <small className="text-muted">by {data.authors.join(', ')}</small>
         </h3>
-        <p className="card-text">{data.abstract}</p>
+        <p className="card-text">{truncate({ length: 250 })(data.abstract)}</p>
         <div className="btn-group" role="group">
           <Link className="btn btn-secondary" to={`/papers/${paper.id}`}>
             Detail
