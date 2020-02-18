@@ -6,6 +6,26 @@ import Button from './Button';
 import Spinner from './Spinner';
 import { useFirebase, useAlgolia, useSearch } from '../hooks';
 
+const INITIAL_STATE = {
+  title: '',
+  abstract: '',
+  authors: [],
+  urlAbstract: '',
+  urlPDF: '',
+  published: false,
+};
+
+function init(data) {
+  return {
+    title: data.title,
+    abstract: data.abstract,
+    authors: data.authors.join(', '),
+    urlAbstract: data.urlAbstract,
+    urlPDF: data.urlPDF,
+    published: false,
+  };
+}
+
 function reducer(state, action) {
   switch (action.type) {
     case 'SET_VALUE':
@@ -15,15 +35,12 @@ function reducer(state, action) {
   }
 }
 
-function PaperForm() {
-  const [state, dispatch] = useReducer(reducer, {
-    title: '',
-    abstract: '',
-    authors: '',
-    urlAbstract: '',
-    urlPDF: '',
-    published: false,
-  });
+function PaperForm({ paper }) {
+  const [state, dispatch] = useReducer(
+    reducer,
+    paper ? paper.data() : INITIAL_STATE,
+    init
+  );
   const firebase = useFirebase();
   const authUser = firebase.authUser;
   const algolia = useAlgolia();
@@ -42,21 +59,32 @@ function PaperForm() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const paper = {
+    const data = {
       ...state,
       authors: state.authors.split(',').map(s => s.trim()),
-      createdAt: firebase.FieldValue.serverTimestamp(),
-      createdBy: authUser.uid,
     };
     try {
       setLoading(true);
-      const doc = await firebase.papers().add(paper);
-      const snapshot = await doc.get();
-      await algolia.addPaper({ ...snapshot.data(), objectID: doc.id });
-      addToast('The paper was submitted', { appearance: 'success' });
+      let doc;
+      let message;
+      if (paper) {
+        data.updatedAt = firebase.FieldValue.serverTimestamp();
+        data.updatedBy = authUser.uid;
+        doc = await firebase.updatePaper(paper.id, data);
+        await algolia.updatePaper(paper.id, data);
+        message = 'The paper has been updated';
+      } else {
+        data.createdAt = firebase.FieldValue.serverTimestamp();
+        data.createdBy = authUser.uid;
+        doc = await firebase.addPaper(data);
+        const snapshot = await doc.get();
+        await algolia.savePaper(doc.id, snapshot.data());
+        message = 'The paper has been submitted';
+      }
+      addToast(message, { appearance: 'success' });
       history.push(`/papers/${doc.id}`);
-    } catch (err) {
-      addToast(err.message, { appearance: 'error' });
+    } catch (error) {
+      addToast(error.message, { appearance: 'error' });
       setLoading(false);
     }
   }
@@ -84,7 +112,7 @@ function PaperForm() {
 
   return (
     <>
-      <h1>Submit Paper</h1>
+      <h1>{paper ? 'Edit Paper' : 'Submit Paper'}</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group position-relative">
           <label htmlFor="title">Title</label>
@@ -155,7 +183,7 @@ function PaperForm() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="Authors">Authors</label>
+          <label htmlFor="Authors">Author(s)</label>
           <input
             type="text"
             className="form-control"
@@ -194,7 +222,7 @@ function PaperForm() {
             required
           />
         </div>
-        <Button loading={loading} />
+        <Button loading={loading}>{paper ? 'Save' : 'Submit'}</Button>
       </form>
     </>
   );

@@ -20,6 +20,7 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.3.1",
     "react-toast-notifications": "^2.4.0",
+    "reactstrap": "^8.4.1",
     "swr": "^0.1.16"
   },
   "scripts": {

@@ -14,7 +14,7 @@ function Papers() {
   const { data, loading } = useRequest(firebase.getPapers, onError);
 
   function handleMoreClick() {
-    console.log('more');
+    // TODO
   }
 
   return (

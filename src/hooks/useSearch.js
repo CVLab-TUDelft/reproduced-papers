@@ -39,7 +39,7 @@ export default function useSearch(index) {
     if (query.length > 2) {
       timeoutId = setTimeout(() => {
         const params = {};
-        if (!authUser || authUser.profile !== 'admin') {
+        if (!authUser || authUser.profile.role !== 'admin') {
           params.filters = 'published=1';
         }
         algolia

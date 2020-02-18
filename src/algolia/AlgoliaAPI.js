@@ -5,19 +5,34 @@ import { algoliaConfig } from '../config';
 export default class AlgoliaAPI {
   constructor() {
     this.client = algoliasearch(algoliaConfig.appId, algoliaConfig.searchKey);
-    this.papers = this.client.initIndex('papers');
-    this.reprods = this.client.initIndex('reprods');
+    this.paperIndex = this.client.initIndex('papers');
+    this.reprodIndex = this.client.initIndex('reprods');
   }
 
-  addPaper = paper => this.papers.saveObject(paper);
+  savePaper = (id, object) =>
+    this.paperIndex.saveObject({ ...object, objectID: id });
 
-  searchPaper = (query, params) => this.papers.search(query, params);
+  updatePaper = (id, object) =>
+    this.paperIndex.partialUpdateObject({ ...object, objectID: id });
 
-  addReprod = reprod => this.reprods.saveObject(reprod);
+  deletePaper = id => this.paperIndex.deleteObject(id);
 
-  searchReprod = (query, params) => this.reprods.search(query, params);
+  updatePaper = (id, object) =>
+    this.paperIndex.partialUpdateObject({ ...object, objectID: id });
 
-  search = (index, query, params) => {
+  searchPaper = (query, params) => this.paperIndex.search(query, params);
+
+  saveReprod = (id, object) =>
+    this.reprodIndex.saveObject({ ...object, objectID: id });
+
+  updateReprod = (id, object) =>
+    this.reprodIndex.partialUpdateObject({ ...object, objectID: id });
+
+  deleteReprod = id => this.reprodIndex.deleteObject(id);
+
+  searchReprod = (query, params) => this.reprodIndex.search(query, params);
+
+  search = (index, query, params = {}) => {
     switch (index) {
       case 'papers':
         return this.searchPaper(query, params);

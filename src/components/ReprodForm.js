@@ -1,10 +1,29 @@
 import React, { useReducer, useState } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import { useHistory, Link } from 'react-router-dom';
-import { escape } from 'lodash/fp';
 
 import Button from './Button';
 import { useFirebase, useAlgolia } from '../hooks';
+
+const INITIAL_STATE = {
+  title: '',
+  description: '',
+  authors: [],
+  urlBlog: '',
+  urlCode: '',
+  published: false,
+};
+
+function init(data) {
+  return {
+    title: data.title,
+    description: data.description,
+    authors: data.authors.join(', '),
+    urlBlog: data.urlBlog,
+    urlCode: data.urlCode,
+    published: false,
+  };
+}
 
 function reducer(state, action) {
   switch (action.type) {
@@ -15,15 +34,12 @@ function reducer(state, action) {
   }
 }
 
-function ReprodForm({ paper }) {
-  const [state, dispatch] = useReducer(reducer, {
-    title: '',
-    description: '',
-    authors: '',
-    urlBlog: '',
-    urlCode: '',
-    published: false,
-  });
+function ReprodForm({ paper, reprod }) {
+  const [state, dispatch] = useReducer(
+    reducer,
+    reprod ? reprod.data() : INITIAL_STATE,
+    init
+  );
   const firebase = useFirebase();
   const authUser = firebase.authUser;
   const algolia = useAlgolia();
@@ -51,25 +67,33 @@ function ReprodForm({ paper }) {
       );
       return;
     }
-    const reprod = {
+    const data = {
       ...state,
       authors: state.authors.split(',').map(s => s.trim()),
-      createdAt: firebase.FieldValue.serverTimestamp(),
-      createdBy: authUser.uid,
+      paperId,
     };
     try {
       setLoading(true);
-      const doc = await firebase.reprods(paperId).add(reprod);
-      const snapshot = await doc.get();
-      await algolia.addReprod({
-        ...snapshot.data(),
-        objectID: doc.id,
-        paperId,
-      });
-      addToast('The reproduction was submitted', { appearance: 'success' });
+      let doc;
+      let message;
+      if (reprod) {
+        data.updatedAt = firebase.FieldValue.serverTimestamp();
+        data.updatedBy = authUser.uid;
+        doc = await firebase.updateReprod(paperId, reprod.id, data);
+        await algolia.updateReprod(reprod.id, data);
+        message = 'The reproduction has been updated';
+      } else {
+        data.createdAt = firebase.FieldValue.serverTimestamp();
+        data.createdBy = authUser.uid;
+        doc = await firebase.addReprod(paperId, data);
+        const snapshot = await doc.get();
+        await algolia.saveReprod(doc.id, snapshot.data());
+        message = 'The reproduction has been submitted';
+      }
+      addToast(message, { appearance: 'success' });
       history.push(`/papers/${paperId}#${doc.id}`);
-    } catch (err) {
-      addToast(err.message, { appearance: 'error' });
+    } catch (error) {
+      addToast(error.message, { appearance: 'error' });
       setLoading(false);
     }
   }
@@ -77,9 +101,9 @@ function ReprodForm({ paper }) {
   const data = paper.data();
   return (
     <>
-      <h1>Submit Reproduction</h1>
+      <h1>{reprod ? 'Edit Reproduction' : 'Submit Reproduction'}</h1>
       <h4>
-        for <Link to={`/papers/${paperId}`}>{escape(data.title)}</Link>
+        for <Link to={`/papers/${paperId}`}>{data.title}</Link>
       </h4>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -107,7 +131,7 @@ function ReprodForm({ paper }) {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="Authors">Authors</label>
+          <label htmlFor="Authors">Author(s)</label>
           <input
             type="text"
             className="form-control"
@@ -160,7 +184,7 @@ function ReprodForm({ paper }) {
             />
           </div>
         </div>
-        <Button loading={loading} />
+        <Button loading={loading}>{reprod ? 'Save' : 'Submit'}</Button>
       </form>
     </>
   );

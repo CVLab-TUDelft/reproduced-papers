@@ -1,24 +1,25 @@
 import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
-import { escape } from 'lodash/fp';
+import { get } from 'lodash/fp';
 
 import { useFirebase, useRequest } from '../hooks';
 import Spinner from './Spinner';
 
 function ReprodCard({ reprod }) {
+  const firebase = useFirebase();
+  const userId = get('uid', firebase.authUser);
+  const userRole = get('profile.role', firebase.authUser);
   const data = reprod.data();
   return (
     <div id={reprod.id} className="card mb-3">
       <div className="card-body">
         <h3 className="card-title">
-          {escape(data.title)}
+          {data.title}
           <br />
-          <small className="text-muted">
-            by {data.authors.map(author => escape(author)).join(', ')}
-          </small>
+          <small className="text-muted">by {data.authors.join(', ')}</small>
         </h3>
-        <p className="card-text">{escape(data.description)}</p>
+        <p className="card-text">{data.description}</p>
         <div className="btn-group" role="group">
           {data.urlBlog && (
             <a
@@ -38,6 +39,14 @@ function ReprodCard({ reprod }) {
           >
             Code
           </a>
+          {(userRole === 'admin' || userId === data.createdBy) && (
+            <Link
+              className="btn btn-success"
+              to={`/papers/${data.paperId}/reproductions/${reprod.id}/edit`}
+            >
+              Edit
+            </Link>
+          )}
         </div>
       </div>
     </div>
@@ -67,13 +76,11 @@ function PaperItem({ paper }) {
   return (
     <>
       <h1>
-        {escape(data.title)}
+        {data.title}
         <br />
-        <small className="text-muted">
-          by {data.authors.map(author => escape(author)).join(', ')}
-        </small>
+        <small className="text-muted">by {data.authors.join(', ')}</small>
       </h1>
-      <p>{escape(data.abstract)}</p>
+      <p>{data.abstract}</p>
       <div className="btn-group" role="group">
         <a
           className="btn btn-primary"

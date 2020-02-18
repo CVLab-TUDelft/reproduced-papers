@@ -13,16 +13,13 @@ function Header() {
   const reprodSearcher = useSearch('reprods');
   const [focused, setFocused] = useState(false);
 
-  console.log('found papers', paperSearcher.hits);
-  console.log('found reprods', reprodSearcher.hits);
-
   async function handleSigninClick(event) {
     event.preventDefault();
     try {
       await firebase.signInWithGithub();
       addToast('Signed in successfully', { appearance: 'success' });
-    } catch (err) {
-      addToast(err.message, { appearance: 'error' });
+    } catch (error) {
+      addToast(error.message, { appearance: 'error' });
     }
   }
 
@@ -31,8 +28,8 @@ function Header() {
     try {
       await firebase.signOut();
       addToast('Signed out successfully', { appearance: 'success' });
-    } catch (err) {
-      addToast(err.message, { appearance: 'error' });
+    } catch (error) {
+      addToast(error.message, { appearance: 'error' });
     }
   }
 
@@ -117,7 +114,7 @@ function Header() {
                       className="list-group-item list-group-item-action"
                       onClick={() => handleSearchItemClick(`/submit-paper`)}
                     >
-                      Submit a paper
+                      Submit if not found
                     </button>
                   )}
                   {paperSearcher.hits.length > 0 && (
@@ -186,6 +183,13 @@ function Header() {
             </div>
           </form>
           <ul className="navbar-nav ml-auto">
+            {authUser && authUser.profile.role === 'admin' && (
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/admin">
+                  Admin
+                </NavLink>
+              </li>
+            )}
             <li className="nav-item">
               <NavLink className="nav-link" to="/papers">
                 Papers

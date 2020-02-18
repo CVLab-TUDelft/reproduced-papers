@@ -5,9 +5,11 @@ import { useToasts } from 'react-toast-notifications';
 import { useFirebase, useRequest } from '../hooks';
 import Spinner from './Spinner';
 import PaperItem from './PaperItem';
+import PaperForm from './PaperForm';
 import SubmitReprod from './SubmitReprod';
+import Reprod from './Reprod';
 
-function Paper({ authUser }) {
+function Paper() {
   const { paperId } = useParams();
   const firebase = useFirebase();
   const { addToast } = useToasts();
@@ -41,8 +43,14 @@ function Paper({ authUser }) {
       <Route exact path="/papers/:paperId">
         <PaperItem paper={paper} />
       </Route>
-      <Route path="/papers/:paperId/submit-reproduction">
-        <SubmitReprod paper={paper} authUser={authUser} />
+      <Route exact path="/papers/:paperId/edit">
+        <PaperForm paper={paper} />
+      </Route>
+      <Route exact path="/papers/:paperId/submit-reproduction">
+        <SubmitReprod paper={paper} />
+      </Route>
+      <Route path="/papers/:paperId/reproductions/:reprodId">
+        <Reprod paper={paper} />
       </Route>
     </Switch>
   );

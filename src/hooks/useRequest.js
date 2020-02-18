@@ -19,9 +19,16 @@ function reducer(state, action) {
   }
 }
 
+/**
+ * Fetches data with the given fetcher function
+ * The params should be memoized, other wise for every new parameter it fetches
+ * again and again. Be careful for inifine loop!
+ *
+ * @param {function} fetcher fetches data from api
+ * @param {function} onError error function to fire in case of error
+ */
 export default function useRequest(fetcher, onError = null) {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
-  console.log(state);
 
   useEffect(() => {
     let canceled = false;

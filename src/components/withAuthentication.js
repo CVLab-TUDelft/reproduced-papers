@@ -11,7 +11,7 @@ export default function withAuthentication(Component) {
       <div className="row">
         <div className="col-md-6 offset-md-3">
           <div className="alert alert-warning text-center">
-            <h5>Warning</h5>
+            <h5>Restricted Page</h5>
             <span>Please sign in to see this page.</span>
           </div>
         </div>
