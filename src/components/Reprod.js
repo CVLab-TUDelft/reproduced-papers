@@ -17,7 +17,7 @@ function Reprod({ paper }) {
 
   // fetch reprod
   const reprodFetcher = useCallback(
-    () => firebase.getReprodOfPaper(paperId, reprodId),
+    () => firebase.getPaperReprod(paperId, reprodId),
     [paperId, reprodId, firebase]
   );
   const { data: reprod, loading: reprodLoading } = useRequest(

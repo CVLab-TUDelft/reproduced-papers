@@ -228,6 +228,21 @@ function Header() {
                   className="dropdown-menu"
                   aria-labelledby="account-dropdown"
                 >
+                  <Link className="dropdown-item" to={`/users/${authUser.uid}`}>
+                    My Profile
+                  </Link>
+                  <Link
+                    className="dropdown-item"
+                    to={`/users/${authUser.uid}/papers`}
+                  >
+                    My Papers
+                  </Link>
+                  <Link
+                    className="dropdown-item"
+                    to={`/users/${authUser.uid}/reproductions`}
+                  >
+                    My Reproductions
+                  </Link>
                   <a
                     className="dropdown-item"
                     href="#signout"

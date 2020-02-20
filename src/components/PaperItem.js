@@ -63,10 +63,10 @@ function PaperItem({ paper }) {
   );
 
   // fetch reproductions
-  const reprodsFetcher = useCallback(
-    () => firebase.getReprodsOfPaper(paperId),
-    [paperId, firebase]
-  );
+  const reprodsFetcher = useCallback(() => firebase.getPaperReprods(paperId), [
+    paperId,
+    firebase,
+  ]);
   const { data: reprods, loading: reprodsLoading } = useRequest(
     reprodsFetcher,
     onError

@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useToasts } from 'react-toast-notifications';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import {
   useFirebase,
@@ -11,33 +11,22 @@ import {
 import Button from '../Button';
 import DeleteDialog from '../DeleteDialog';
 
-const filters = {
-  all: 'All',
-  unpublished: 'Unpublished',
-  published: 'Published',
-};
-const defaultFilter = 'all';
-function getFilteredIds(filter, state) {
-  if (filter === 'all') {
-    return state.ids;
-  }
-  return state.ids.filter(
-    id =>
-      (filter === 'published' && state.byId[id].published) ||
-      (filter === 'unpublished' && !state.byId[id].published)
-  );
-}
-
-function Papers() {
+function Papers({ user, me }) {
   const firebase = useFirebase();
   const { addToast } = useToasts();
   const onError = useCallback(
     error => addToast(error.message, { appearance: 'error' }),
     [addToast]
   );
-  const { data, loading } = useRequest(firebase.getPapers, onError);
+
+  // fetch user's papers
+  const userPaperFetcher = useCallback(() => firebase.getUserPapers(user.id), [
+    user.id,
+    firebase,
+  ]);
+  const { data, loading } = useRequest(userPaperFetcher, onError);
   const [state, dispatch] = useCollection(data);
-  const { byId } = state;
+  const { byId, ids } = state;
 
   function handleMoreClick() {
     // TODO
@@ -62,25 +51,9 @@ function Papers() {
     }
   }
 
-  const { hash } = useLocation();
-  const [filter, setFilter] = useState(hash ? hash.substr(1) : defaultFilter);
-  let filteredIds = getFilteredIds(filter, state);
-
+  const userRole = user.data().role;
   return (
     <>
-      <ul className="nav nav-pills mb-3">
-        {Object.keys(filters).map(key => (
-          <li key={key} className="nav-item">
-            <a
-              className={`nav-link${key === filter ? ' active' : ''}`}
-              onClick={() => setFilter(key)}
-              href={`#${filter}`}
-            >
-              {filters[key]}
-            </a>
-          </li>
-        ))}
-      </ul>
       <div className="table-responsive">
         <table className="table table-hover">
           <thead>
@@ -88,11 +61,12 @@ function Papers() {
               <th>Paper ID</th>
               <th>Title</th>
               <th>Author(s)</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredIds.map(id => (
+            {ids.map(id => (
               <tr key={id}>
                 <td>
                   <Link to={`/papers/${id}`}>{id}</Link>
@@ -100,25 +74,40 @@ function Papers() {
                 <td>{byId[id].title}</td>
                 <td>{byId[id].authors.join(', ')}</td>
                 <td>
+                  <span
+                    className={`badge badge-${
+                      byId[id].published ? 'success' : 'secondary'
+                    }`}
+                  >
+                    {byId[id].published ? 'Published' : 'Pending'}
+                  </span>
+                </td>
+                <td>
                   <div className="btn-group" role="group">
-                    <Link
-                      className="btn btn-primary"
-                      to={`/admin/papers/${id}/edit`}
-                    >
-                      Edit
-                    </Link>
-                    <Button
-                      className="btn btn-danger"
-                      onClick={() => setSelected(id)}
-                    >
-                      Delete
-                    </Button>
-                    <Button
-                      className="btn btn-success"
-                      onClick={() => handlePublishClick(id)}
-                    >
-                      {byId[id].published ? 'Unpublish' : 'Publish'}
-                    </Button>
+                    {(userRole === 'admin' || me) && (
+                      <Link
+                        className="btn btn-primary"
+                        to={`/papers/${id}/edit`}
+                      >
+                        Edit
+                      </Link>
+                    )}
+                    {(userRole === 'admin' || (me && !byId[id].published)) && (
+                      <Button
+                        className="btn btn-danger"
+                        onClick={() => setSelected(id)}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                    {userRole === 'admin' && (
+                      <Button
+                        className="btn btn-success"
+                        onClick={() => handlePublishClick(id)}
+                      >
+                        {byId[id].published ? 'Unpublish' : 'Publish'}
+                      </Button>
+                    )}
                   </div>
                 </td>
               </tr>

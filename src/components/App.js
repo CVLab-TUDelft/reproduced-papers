@@ -11,6 +11,7 @@ import SubmitPaper from './SubmitPaper';
 import Papers from './Papers';
 import Paper from './Paper';
 import Admin from './Admin';
+import Users from './Users';
 
 function App() {
   const loading = useAuthentication();
@@ -38,6 +39,9 @@ function App() {
           </Route>
           <Route path="/admin">
             <Admin />
+          </Route>
+          <Route path="/users/:userId">
+            <Users />
           </Route>
         </Switch>
       </main>

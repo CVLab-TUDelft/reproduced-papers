@@ -38,6 +38,8 @@ export default class FirebaseAPI {
 
   users = () => this.db.collection('users');
 
+  getUser = uid => this.user(uid).get();
+
   getUsers = () => this.users().get();
 
   updateUser = async (uid, data) => {
@@ -101,13 +103,24 @@ export default class FirebaseAPI {
 
   getPapers = async (params = {}) => {
     let q = this.papers();
-    if (!this.authUser || this.authUser.profile.role !== 'admin') {
+    if (get('profile.role')(this.authUser) !== 'admin') {
       const where = ['published', '==', true];
       if (!params.where) {
         params.where = [where];
       } else {
         params.where.push(where);
       }
+    }
+    return this.query(q, params);
+  };
+
+  getUserPapers = async (uid, params = {}) => {
+    let q = this.papers();
+    const where = ['createdBy', '==', uid];
+    if (!params.where) {
+      params.where = [where];
+    } else {
+      params.where.push(where);
     }
     return this.query(q, params);
   };
@@ -124,13 +137,13 @@ export default class FirebaseAPI {
 
   reprod = (paperId, id) => this.db.doc(`papers/${paperId}/reprods/${id}`);
 
-  reprodsOfPaper = paperId => this.db.collection(`papers/${paperId}/reprods`);
+  paperProds = paperId => this.db.collection(`papers/${paperId}/reprods`);
 
-  getReprodOfPaper = (paperId, id) => this.reprod(paperId, id).get();
+  getPaperReprod = (paperId, id) => this.reprod(paperId, id).get();
 
-  getReprodsOfPaper = async (paperId, params = {}) => {
-    let q = this.reprodsOfPaper(paperId);
-    if (!this.authUser || this.authUser.profile.role !== 'admin') {
+  getPaperReprods = async (paperId, params = {}) => {
+    let q = this.paperProds(paperId);
+    if (get('profile.role')(this.authUser) !== 'admin') {
       const where = ['published', '==', true];
       if (!params.where) {
         params.where = [where];
@@ -156,7 +169,18 @@ export default class FirebaseAPI {
     return this.query(q, params);
   };
 
-  addReprod = (paperId, data) => this.reprodsOfPaper(paperId).add(data);
+  getUserReprods = async (uid, params = {}) => {
+    let q = this.reprods();
+    const where = ['createdBy', '==', uid];
+    if (!params.where) {
+      params.where = [where];
+    } else {
+      params.where.push(where);
+    }
+    return this.query(q, params);
+  };
+
+  addReprod = (paperId, data) => this.paperProds(paperId).add(data);
 
   updateReprod = async (paperId, id, data) => {
     const doc = this.reprod(paperId, id);

@@ -27,7 +27,7 @@ function ReprodEdit() {
 
   // fetch reprod
   const reprodFetcher = useCallback(
-    () => firebase.getReprodOfPaper(paperId, reprodId),
+    () => firebase.getPaperReprod(paperId, reprodId),
     [paperId, reprodId, firebase]
   );
   const { data: reprod, loading: reprodLoading } = useRequest(
@@ -45,7 +45,7 @@ function ReprodEdit() {
     );
   }
 
-  if (!reprod.exists) {
+  if (!reprod || !reprod.exists) {
     return (
       <p className="text-center">Reprod with id {reprodId} could not found.</p>
     );
