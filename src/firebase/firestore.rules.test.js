@@ -9,7 +9,6 @@ import { readFileSync } from 'fs';
 
 const setup = async (auth, data) => {
   const projectId = `firestore-${Date.now()}`;
-  console.log(projectId);
   const app = initializeTestApp({
     projectId,
     auth,

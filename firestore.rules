@@ -51,14 +51,6 @@ service cloud.firestore {
       ]
     }
 
-    function userAllFields() {
-      return [
-        'displayName',
-        'email',
-        'role',
-      ]
-    }
-
     function userCreateCheck() {
       return request.resource.data.keys().hasAll(userFields())
               && request.resource.data['role'] == 'user';
@@ -161,14 +153,14 @@ service cloud.firestore {
       allow delete: if isAdmin() || isSelf(uid);
     }
 
-    match /papers/{id} {
+    match /papers/{paperId} {
       allow get, list: if isAdmin() || isOwnDocument() || isPublished();
       allow create: if isAdmin() || (isCreatedBySelf() && paperCreateCheck());
       allow update: if isAdmin() || (isUpdatedBySelf() && paperUpdateCheck());
       allow delete: if isAdmin() || (isOwnDocument() && !isPublished());
     }
 
-    match /papers/{paperId}/reprods/{id} {
+    match /{path=**}/reprods/{reprodId} {
       allow get, list: if isAdmin() || isOwnDocument() || isPublished();
       allow create: if isAdmin() || (isCreatedBySelf() && reprodCreateCheck());
       allow update: if isAdmin() || (isUpdatedBySelf() && reprodUpdateCheck());
