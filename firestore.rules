@@ -1,8 +1,178 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // general purpose functions
+    function isFieldUnchanged(field) {
+    	return (!(field in request.resource.data) || request.resource.data[field] == resource.data[field]);
+    }
+
+    function isOwnDocument() {
+      return request.auth.uid == resource.data.createdBy;
+    }
+
+    function isCreatedBySelf() {
+      return request.auth.uid == request.resource.data.createdBy;
+    }
+
+    function isUpdatedBySelf() {
+      return isOwnDocument()
+              && request.auth.uid == request.resource.data.updatedBy;
+    }
+
+    function isPublished() {
+      return resource.data.published;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // auth related functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+              && ('role' in getUserData())
+              && 'admin' == getUserData().role;
+    }
+
+    function isSelf(uid) {
+      return request.auth.uid == uid;
+    }
+
+    // user related functions
+    function userFields() {
+      return [
+        'displayName',
+        'email',
+        'role',
+      ]
+    }
+
+    function userAllFields() {
+      return [
+        'displayName',
+        'email',
+        'role',
+      ]
+    }
+
+    function userCreateCheck() {
+      return request.resource.data.keys().hasAll(userFields())
+              && request.resource.data['role'] == 'user';
+    }
+
+    function userUpdateCheck() {
+      return request.resource.data.keys().hasOnly(userFields())
+              && isFieldUnchanged('role');
+    }
+
+    // paper related functions
+    function paperCreateFields() {
+      return [
+        'title',
+        'abstract',
+        'authors',
+        'urlAbstract',
+        'urlPDF',
+        'published',
+        'createdBy',
+        'createdAt',
+      ]
+    }
+
+
+    function paperCreateCheck() {
+      return request.resource.data.keys().hasAll(paperCreateFields())
+              && !request.resource.data['published'];
+    }
+
+    function paperUpdateFields() {
+      return [
+        'title',
+        'abstract',
+        'authors',
+        'urlAbstract',
+        'urlPDF',
+        'published',
+        'publishedBy',
+        'publishedAt',
+        'updatedBy',
+        'updatedAt',
+      ]
+    }
+
+    function paperUpdateCheck() {
+      return request.resource.data.keys().hasOnly(paperUpdateFields())
+              && (!('published' in request.resource.data) || !request.resource.data['published']);
+    }
+
+    // reprod related functions
+    function reprodCreateFields() {
+      return [
+        'title',
+        'description',
+        'authors',
+        'urlBlog',
+        'urlCode',
+        'published',
+        'createdBy',
+        'createdAt',
+      ]
+    }
+
+    function reprodCreateCheck() {
+      return request.resource.data.keys().hasAll(reprodCreateFields())
+              && !request.resource.data['published'];
+    }
+
+    function reprodUpdateFields() {
+      return [
+        'title',
+        'description',
+        'authors',
+        'urlBlog',
+        'urlCode',
+        'published',
+        'publishedBy',
+        'publishedAt',
+        'updatedBy',
+        'updatedAt',
+      ]
+    }
+
+    function reprodUpdateCheck() {
+      return request.resource.data.keys().hasOnly(reprodUpdateFields())
+              && (!('published' in request.resource.data) || !request.resource.data['published']);
+    }
+
+    // Rules
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if isAdmin();
+    }
+
+    match /users/{uid} {
+      allow get: if isAdmin() || isSelf(uid);
+      allow list: if isAdmin();
+      allow create: if isAdmin() || (isSelf(uid) && userCreateCheck());
+      allow update: if isAdmin() || (isSelf(uid) && userUpdateCheck());
+      allow delete: if isAdmin() || isSelf(uid);
+    }
+
+    match /papers/{id} {
+      allow get, list: if isAdmin() || isOwnDocument() || isPublished();
+      allow create: if isAdmin() || (isCreatedBySelf() && paperCreateCheck());
+      allow update: if isAdmin() || (isUpdatedBySelf() && paperUpdateCheck());
+      allow delete: if isAdmin() || (isOwnDocument() && !isPublished());
+    }
+
+    match /papers/{paperId}/reprods/{id} {
+      allow get, list: if isAdmin() || isOwnDocument() || isPublished();
+      allow create: if isAdmin() || (isCreatedBySelf() && reprodCreateCheck());
+      allow update: if isAdmin() || (isUpdatedBySelf() && reprodUpdateCheck());
+      allow delete: if isAdmin() || (isOwnDocument() && !isPublished());
     }
   }
 }

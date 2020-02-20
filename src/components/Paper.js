@@ -32,7 +32,7 @@ function Paper() {
     return <Spinner />;
   }
 
-  if (!paper.exists) {
+  if (!paper || !paper.exists) {
     return (
       <p className="text-center">Paper with id {paperId} could not found.</p>
     );

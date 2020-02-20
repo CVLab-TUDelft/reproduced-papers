@@ -23,6 +23,9 @@
     "reactstrap": "^8.4.1",
     "swr": "^0.1.16"
   },
+  "devDependencies": {
+    "@firebase/testing": "^0.16.9"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

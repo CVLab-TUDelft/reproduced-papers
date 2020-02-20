@@ -48,6 +48,10 @@ function Reprods() {
     try {
       const published = !byId[id].published;
       const data = { published };
+      if (published) {
+        data.publishedAt = firebase.FieldValue.serverTimestamp();
+        data.publishedBy = firebase.authUser.uid;
+      }
       await firebase.updateReprod(byId[id].paperId, id, data);
       await algolia.updateReprod(id, data);
       dispatch({ type: 'SET', id, data });
