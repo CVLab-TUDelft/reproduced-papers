@@ -12,6 +12,7 @@ import Papers from './Papers';
 import Paper from './Paper';
 import Admin from './Admin';
 import Users from './Users';
+import SignOut from './SignOut';
 
 function App() {
   const loading = useAuthentication();
@@ -42,6 +43,9 @@ function App() {
           </Route>
           <Route path="/users/:userId">
             <Users />
+          </Route>
+          <Route path="/signout">
+            <SignOut />
           </Route>
         </Switch>
       </main>

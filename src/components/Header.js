@@ -23,16 +23,6 @@ function Header() {
     }
   }
 
-  async function handleSignoutClick(event) {
-    event.preventDefault();
-    try {
-      await firebase.signOut();
-      addToast('Signed out successfully', { appearance: 'success' });
-    } catch (error) {
-      addToast(error.message, { appearance: 'error' });
-    }
-  }
-
   async function handleSearchChange(event) {
     const query = event.target.value;
     paperSearcher.search(query);
@@ -225,7 +215,7 @@ function Header() {
                   Account
                 </a>
                 <div
-                  className="dropdown-menu"
+                  className="dropdown-menu dropdown-menu-right"
                   aria-labelledby="account-dropdown"
                 >
                   <Link className="dropdown-item" to={`/users/${authUser.uid}`}>
@@ -243,13 +233,9 @@ function Header() {
                   >
                     My Reproductions
                   </Link>
-                  <a
-                    className="dropdown-item"
-                    href="#signout"
-                    onClick={handleSignoutClick}
-                  >
+                  <Link className="dropdown-item" to="/signout">
                     Sign out
-                  </a>
+                  </Link>
                 </div>
               </li>
             )}
