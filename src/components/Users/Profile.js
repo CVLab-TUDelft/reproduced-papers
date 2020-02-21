@@ -3,7 +3,7 @@ import React from 'react';
 function Profile({ user }) {
   const data = user.data();
   return (
-    <dl>
+    <dl className="mx-1">
       <dt>Display Name</dt>
       <dd>{data.displayName}</dd>
       <dt>E-mail</dt>

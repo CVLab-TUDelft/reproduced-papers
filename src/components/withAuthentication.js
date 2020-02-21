@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useFirebase } from '../hooks';
+import ErrorAlert from './ErrorAlert';
 
 export default function withAuthentication(Component) {
   return function(props) {
@@ -8,14 +9,9 @@ export default function withAuthentication(Component) {
     const authUser = firebase.authUser;
 
     return !authUser ? (
-      <div className="row">
-        <div className="col-md-6 offset-md-3">
-          <div className="alert alert-warning text-center">
-            <h5>Restricted Page</h5>
-            <span>Please sign in to see this page.</span>
-          </div>
-        </div>
-      </div>
+      <ErrorAlert title="Restricted Page">
+        Please sign in to see this page.
+      </ErrorAlert>
     ) : (
       <Component {...props} authUser={authUser} />
     );

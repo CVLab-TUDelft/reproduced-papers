@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import { Link, useLocation } from 'react-router-dom';
 
 import { useFirebase, useRequest, useCollection } from '../../hooks';
 import Button from '../Button';
+import { LIMIT } from '../../constants';
 
 const ROLES = {
   user: 'User',
@@ -23,26 +24,26 @@ function getFilteredIds(filter, state) {
   return state.ids.filter(id => filter === state.byId[id].role);
 }
 
+// params should be outside of the component
+// otherwise useMemo
+const params = { limit: LIMIT };
+
 function Papers() {
   const firebase = useFirebase();
   const { addToast } = useToasts();
-  const onError = useCallback(
-    error => addToast(error.message, { appearance: 'error' }),
-    [addToast]
+  const { data, loading, hasMore, fetchMore } = useRequest(
+    firebase.getUsers,
+    params
   );
-  const { data, loading } = useRequest(firebase.getUsers, onError);
   const [state, dispatch] = useCollection(data);
   const { byId } = state;
-
-  function handleMoreClick() {
-    // TODO
-  }
 
   async function handleRoleChange(id, event) {
     try {
       const data = { role: event.target.value };
-      await firebase.updateUser(id, data);
-      dispatch({ type: 'SET', id, data });
+      const docRef = await firebase.updateUser(id, data);
+      const doc = await docRef.get();
+      dispatch({ type: 'SET', id, doc });
       addToast('The role of the user updated', { appearance: 'success' });
     } catch (error) {
       addToast(error.message, { appearance: 'error' });
@@ -104,11 +105,13 @@ function Papers() {
             ))}
           </tbody>
         </table>
-        <div className="text-center mb-3">
-          <Button type="button" loading={loading} onClick={handleMoreClick}>
-            More
-          </Button>
-        </div>
+        {hasMore && (
+          <div className="text-center mb-3">
+            <Button type="button" loading={loading} onClick={fetchMore}>
+              More
+            </Button>
+          </div>
+        )}
       </div>
     </>
   );

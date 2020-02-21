@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useToasts } from 'react-toast-notifications';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import {
   useFirebase,
@@ -10,33 +10,34 @@ import {
 } from '../../hooks';
 import Button from '../Button';
 import DeleteDialog from '../DeleteDialog';
+import { LIMIT } from '../../constants';
+
+// params should be outside of the component
+// otherwise useMemo
+const params = { limit: LIMIT };
 
 function Papers({ user, me }) {
+  const { paperId } = useParams();
   const firebase = useFirebase();
   const { addToast } = useToasts();
-  const onError = useCallback(
-    error => addToast(error.message, { appearance: 'error' }),
-    [addToast]
-  );
 
   // fetch user's papers
-  const userPaperFetcher = useCallback(() => firebase.getUserPapers(user.id), [
-    user.id,
-    firebase,
-  ]);
-  const { data, loading } = useRequest(userPaperFetcher, onError);
+  const userPaperFetcher = useCallback(
+    params => firebase.getUserPapers(user.id, params),
+    [user.id, firebase]
+  );
+  const { data, loading, hasMore, fetchMore } = useRequest(
+    userPaperFetcher,
+    params
+  );
   const [state, dispatch] = useCollection(data);
   const { byId, ids } = state;
-
-  function handleMoreClick() {
-    // TODO
-  }
 
   const { doTogglePublish, doDelete } = usePaperActions();
   async function handlePublishClick(id) {
     try {
-      const data = await doTogglePublish(id, byId[id]);
-      dispatch({ type: 'SET', id, data });
+      const doc = await doTogglePublish(id, byId[id]);
+      dispatch({ type: 'SET', id, doc });
     } catch (error) {}
   }
 
@@ -51,7 +52,7 @@ function Papers({ user, me }) {
     }
   }
 
-  const userRole = user.data().role;
+  const userRole = firebase.authUser.profile.role;
   return (
     <>
       <div className="table-responsive">
@@ -67,7 +68,10 @@ function Papers({ user, me }) {
           </thead>
           <tbody>
             {ids.map(id => (
-              <tr key={id}>
+              <tr
+                key={id}
+                className={`${id === paperId ? 'table-primary ' : ''}`}
+              >
                 <td>
                   <Link to={`/papers/${id}`}>{id}</Link>
                 </td>
@@ -114,11 +118,13 @@ function Papers({ user, me }) {
             ))}
           </tbody>
         </table>
-        <div className="text-center mb-3">
-          <Button type="button" loading={loading} onClick={handleMoreClick}>
-            More
-          </Button>
-        </div>
+        {hasMore && (
+          <div className="text-center mb-3">
+            <Button type="button" loading={loading} onClick={fetchMore}>
+              More
+            </Button>
+          </div>
+        )}
         <DeleteDialog
           isOpen={!!selected}
           onDelete={() => handleDelete(selected)}

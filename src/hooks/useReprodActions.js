@@ -15,13 +15,13 @@ export default function useReprodActions() {
         data.publishedAt = firebase.FieldValue.serverTimestamp();
         data.publishedBy = firebase.authUser.uid;
       }
-      await firebase.updateReprod(reprod.paperId, id, data);
+      const doc = await firebase.updateReprod(reprod.paperId, id, data);
       await algolia.updateReprod(id, data);
       const message = published
         ? 'The reproduction was published'
         : 'The reproduction was unpublished';
       addToast(message, { appearance: 'success' });
-      return data;
+      return await doc.get();
     } catch (error) {
       addToast(error.message, { appearance: 'error' });
       throw error;

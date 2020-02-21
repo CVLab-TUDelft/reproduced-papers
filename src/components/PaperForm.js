@@ -67,22 +67,27 @@ function PaperForm({ paper }) {
       setLoading(true);
       let doc;
       let message;
+      let snapshot;
       if (paper) {
         data.updatedAt = firebase.FieldValue.serverTimestamp();
         data.updatedBy = authUser.uid;
         doc = await firebase.updatePaper(paper.id, data);
-        await algolia.updatePaper(paper.id, data);
+        await algolia.updatePaper(doc.id, data);
         message = 'The paper has been updated';
       } else {
         data.createdAt = firebase.FieldValue.serverTimestamp();
         data.createdBy = authUser.uid;
         doc = await firebase.addPaper(data);
-        const snapshot = await doc.get();
+        snapshot = await doc.get();
         await algolia.savePaper(doc.id, snapshot.data());
         message = 'The paper has been submitted';
       }
       addToast(message, { appearance: 'success' });
-      history.push(`/papers/${doc.id}`);
+      history.push(
+        `/users/${
+          paper ? paper.get('createdBy') : snapshot.get('createdBy')
+        }/papers/${doc.id}`
+      );
     } catch (error) {
       addToast(error.message, { appearance: 'error' });
       setLoading(false);

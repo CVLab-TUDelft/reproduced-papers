@@ -21,16 +21,12 @@ export default function DeleteDialog({ isOpen, onDelete, onToggle, itemName }) {
 
   return (
     <Dialog
-      title="Warning"
-      body={
-        <p>
-          Are you sure to delete{' '}
-          <span className="text-primary">{itemName}</span>?
-        </p>
-      }
+      title="Delete"
       buttons={buttons}
       isOpen={isOpen}
-      onToggleClick={onToggle}
-    />
+      onToggle={onToggle}
+    >
+      Are you sure to delete <em>{itemName}</em>?
+    </Dialog>
   );
 }

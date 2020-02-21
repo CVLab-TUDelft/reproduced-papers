@@ -1,12 +1,16 @@
 import { useReducer, useEffect } from 'react';
 
+function data(doc) {
+  return { ...doc.data(), id: doc.id, doc };
+}
+
 function reducer(state, action) {
   switch (action.type) {
     case 'SET_DATA':
       const byId = {};
       const ids = [];
       (action.docs || []).forEach(doc => {
-        byId[doc.id] = { ...doc.data(), id: doc.id, doc };
+        byId[doc.id] = data(doc);
         ids.push(doc.id);
       });
       return { ...state, byId, ids };
@@ -15,7 +19,7 @@ function reducer(state, action) {
         ...state,
         byId: {
           ...state.byId,
-          [action.id]: { ...state.byId[action.id], ...action.data },
+          [action.id]: data(action.doc),
         },
       };
     case 'DELETE':

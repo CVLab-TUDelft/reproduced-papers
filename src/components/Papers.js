@@ -1,24 +1,68 @@
-import React, { useCallback } from 'react';
-import { useToasts } from 'react-toast-notifications';
+import React, { useState } from 'react';
 
-import { useFirebase, useRequest } from '../hooks';
+import {
+  useFirebase,
+  useRequest,
+  useCollection,
+  usePaperActions,
+} from '../hooks';
+import Button from './Button';
+import DeleteDialog from './DeleteDialog';
 import PaperList from './PaperList';
+import { LIMIT } from '../constants';
+
+// params should be outside of the component
+// otherwise useMemo
+const params = { limit: LIMIT };
 
 function Papers() {
   const firebase = useFirebase();
-  const { addToast } = useToasts();
-  const onError = useCallback(
-    error => addToast(error.message, { appearance: 'error' }),
-    [addToast]
+  const { data, loading, hasMore, fetchMore } = useRequest(
+    firebase.getPapers,
+    params
   );
-  const { data, loading } = useRequest(firebase.getPapers, onError);
+  const [state, dispatch] = useCollection(data);
+  const { byId } = state;
 
-  function handleMoreClick() {
-    // TODO
+  const { doTogglePublish, doDelete } = usePaperActions();
+  async function handlePublishClick(id) {
+    try {
+      const doc = await doTogglePublish(id, byId[id]);
+      dispatch({ type: 'SET', id, doc });
+    } catch (error) {}
+  }
+
+  const [forDelete, setForDelete] = useState(null);
+  async function handleDelete(id) {
+    try {
+      await doDelete(id);
+      setForDelete(null);
+      dispatch({ type: 'DELETE', id });
+    } catch (error) {}
   }
 
   return (
-    <PaperList papers={data} loading={loading} onMoreClick={handleMoreClick} />
+    <>
+      <h1>Papers</h1>
+      <PaperList
+        {...state}
+        onDeleteClick={setForDelete}
+        onPublishClick={handlePublishClick}
+      />
+      {hasMore && (
+        <div className="text-center mb-3">
+          <Button type="button" loading={loading} onClick={fetchMore}>
+            More
+          </Button>
+        </div>
+      )}
+      <DeleteDialog
+        isOpen={!!forDelete}
+        onDelete={() => handleDelete(forDelete)}
+        onToggle={() => setForDelete(null)}
+        itemName={forDelete && byId[forDelete].title}
+      />
+    </>
   );
 }
 

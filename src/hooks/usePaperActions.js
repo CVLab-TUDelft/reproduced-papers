@@ -15,13 +15,13 @@ export default function usePaperActions() {
         data.publishedAt = firebase.FieldValue.serverTimestamp();
         data.publishedBy = firebase.authUser.uid;
       }
-      await firebase.updatePaper(id, data);
+      const doc = await firebase.updatePaper(id, data);
       await algolia.updatePaper(id, data);
       const message = published
         ? 'The paper was published'
         : 'The paper was unpublished';
       addToast(message, { appearance: 'success' });
-      return data;
+      return await doc.get();
     } catch (error) {
       addToast(error.message, { appearance: 'error' });
       throw error;

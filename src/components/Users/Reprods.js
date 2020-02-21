@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useToasts } from 'react-toast-notifications';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import {
   useFirebase,
@@ -10,33 +9,33 @@ import {
 } from '../../hooks';
 import Button from '../Button';
 import DeleteDialog from '../DeleteDialog';
+import { LIMIT } from '../../constants';
+
+// params should be outside of the component
+// otherwise useMemo
+const params = { limit: LIMIT };
 
 function Reprods({ user, me }) {
+  const { reprodId } = useParams();
   const firebase = useFirebase();
-  const { addToast } = useToasts();
-  const onError = useCallback(
-    error => addToast(error.message, { appearance: 'error' }),
-    [addToast]
-  );
 
   // fetch user's reprods
   const userReprodFetcher = useCallback(
-    () => firebase.getUserReprods(user.id),
+    params => firebase.getUserReprods(user.id, params),
     [user.id, firebase]
   );
-  const { data, loading } = useRequest(userReprodFetcher, onError);
+  const { data, loading, hasMore, fetchMore } = useRequest(
+    userReprodFetcher,
+    params
+  );
   const [state, dispatch] = useCollection(data);
   const { byId, ids } = state;
-
-  function handleMoreClick() {
-    // TODO
-  }
 
   const { doTogglePublish, doDelete } = useReprodActions();
   async function handlePublishClick(id) {
     try {
-      const data = await doTogglePublish(id, byId[id]);
-      dispatch({ type: 'SET', id, data });
+      const doc = await doTogglePublish(id, byId[id]);
+      dispatch({ type: 'SET', id, doc });
     } catch (error) {}
   }
 
@@ -49,7 +48,7 @@ function Reprods({ user, me }) {
     } catch (error) {}
   }
 
-  const userRole = user.data().role;
+  const userRole = firebase.authUser.profile.role;
   return (
     <>
       <div className="table-responsive">
@@ -66,7 +65,10 @@ function Reprods({ user, me }) {
           </thead>
           <tbody>
             {ids.map(id => (
-              <tr key={id}>
+              <tr
+                key={id}
+                className={`${id === reprodId ? 'table-primary ' : ''}`}
+              >
                 <td>
                   <Link to={`/papers/${byId[id].paperId}#${id}`}>{id}</Link>
                 </td>
@@ -118,11 +120,13 @@ function Reprods({ user, me }) {
             ))}
           </tbody>
         </table>
-        <div className="text-center mb-3">
-          <Button type="button" loading={loading} onClick={handleMoreClick}>
-            More
-          </Button>
-        </div>
+        {hasMore && (
+          <div className="text-center mb-3">
+            <Button type="button" loading={loading} onClick={fetchMore}>
+              More
+            </Button>
+          </div>
+        )}
         <DeleteDialog
           isOpen={!!selected}
           onDelete={() => handleDelete(selected)}

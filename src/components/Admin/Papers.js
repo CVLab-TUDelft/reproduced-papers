@@ -1,5 +1,4 @@
-import React, { useCallback, useState } from 'react';
-import { useToasts } from 'react-toast-notifications';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 import {
@@ -10,6 +9,8 @@ import {
 } from '../../hooks';
 import Button from '../Button';
 import DeleteDialog from '../DeleteDialog';
+import Dialog from '../Dialog';
+import { LIMIT } from '../../constants';
 
 const filters = {
   all: 'All',
@@ -28,39 +29,37 @@ function getFilteredIds(filter, state) {
   );
 }
 
+// params should be outside of the component
+// otherwise useMemo
+const params = { limit: LIMIT };
+
 function Papers() {
   const firebase = useFirebase();
-  const { addToast } = useToasts();
-  const onError = useCallback(
-    error => addToast(error.message, { appearance: 'error' }),
-    [addToast]
+  const { data, loading, hasMore, fetchMore } = useRequest(
+    firebase.getPapers,
+    params
   );
-  const { data, loading } = useRequest(firebase.getPapers, onError);
   const [state, dispatch] = useCollection(data);
   const { byId } = state;
-
-  function handleMoreClick() {
-    // TODO
-  }
 
   const { doTogglePublish, doDelete } = usePaperActions();
   async function handlePublishClick(id) {
     try {
-      const data = await doTogglePublish(id, byId[id]);
-      dispatch({ type: 'SET', id, data });
+      const doc = await doTogglePublish(id, byId[id]);
+      dispatch({ type: 'SET', id, doc });
     } catch (error) {}
   }
 
-  const [selected, setSelected] = useState(null);
+  const [forDelete, setForDelete] = useState(null);
   async function handleDelete(id) {
     try {
       await doDelete(id);
-      setSelected(null);
+      setForDelete(null);
       dispatch({ type: 'DELETE', id });
-    } catch (error) {
-      addToast(error.message, { appearance: 'error' });
-    }
+    } catch (error) {}
   }
+
+  const [forDetail, setForDetail] = useState(null);
 
   const { hash } = useLocation();
   const [filter, setFilter] = useState(hash ? hash.substr(1) : defaultFilter);
@@ -101,6 +100,12 @@ function Papers() {
                 <td>{byId[id].authors.join(', ')}</td>
                 <td>
                   <div className="btn-group" role="group">
+                    <Button
+                      className="btn btn-secondary"
+                      onClick={() => setForDetail(id)}
+                    >
+                      Detail
+                    </Button>
                     <Link
                       className="btn btn-primary"
                       to={`/admin/papers/${id}/edit`}
@@ -109,7 +114,7 @@ function Papers() {
                     </Link>
                     <Button
                       className="btn btn-danger"
-                      onClick={() => setSelected(id)}
+                      onClick={() => setForDelete(id)}
                     >
                       Delete
                     </Button>
@@ -125,17 +130,98 @@ function Papers() {
             ))}
           </tbody>
         </table>
-        <div className="text-center mb-3">
-          <Button type="button" loading={loading} onClick={handleMoreClick}>
-            More
-          </Button>
-        </div>
+        {hasMore && (
+          <div className="text-center mb-3">
+            <Button type="button" loading={loading} onClick={fetchMore}>
+              More
+            </Button>
+          </div>
+        )}
         <DeleteDialog
-          isOpen={!!selected}
-          onDelete={() => handleDelete(selected)}
-          onToggle={() => setSelected(null)}
-          itemName={selected && byId[selected].title}
+          isOpen={!!forDelete}
+          onDelete={() => handleDelete(forDelete)}
+          onToggle={() => setForDelete(null)}
+          itemName={forDelete && byId[forDelete].title}
         />
+        <Dialog
+          isOpen={!!forDetail}
+          onToggle={() => setForDetail(null)}
+          title={forDetail && byId[forDetail].title}
+          size="xl"
+        >
+          {forDetail && (
+            <dl>
+              <dt>Paper ID</dt>
+              <dd>
+                <Link to={`/papers/${forDetail}`}>{forDetail}</Link>
+              </dd>
+              <dt>Abstract</dt>
+              <dd>{byId[forDetail].abstract}</dd>
+              <dt>Author(s)</dt>
+              <dd>{byId[forDetail].authors.join(', ')}</dd>
+              <dt>URL to abstract</dt>
+              <dd>
+                {byId[forDetail].urlAbstract && (
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={byId[forDetail].urlAbstract}
+                  >
+                    {byId[forDetail].urlAbstract}
+                  </a>
+                )}
+              </dd>
+              <dt>URL to PDF</dt>
+              <dd>
+                {byId[forDetail].urlPDF && (
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={byId[forDetail].urlPDF}
+                  >
+                    {byId[forDetail].urlPDF}
+                  </a>
+                )}
+              </dd>
+              <dt>Submitted by</dt>
+              <dd>
+                <Link to={`/users/${byId[forDetail].createdBy}`}>
+                  {byId[forDetail].createdBy}
+                </Link>
+              </dd>
+              <dt>Submitted at</dt>
+              <dd>{byId[forDetail].createdAt.toDate().toString()}</dd>
+              {byId[forDetail].updatedBy && (
+                <>
+                  <dt>Updated by</dt>
+                  <dd>
+                    <Link to={`/users/${byId[forDetail].updatedBy}`}>
+                      {byId[forDetail].updatedBy}
+                    </Link>
+                  </dd>
+                  <dt>Updated at</dt>
+                  <dd>{byId[forDetail].updatedAt.toDate().toString()}</dd>
+                </>
+              )}
+              {byId[forDetail].publishedBy && (
+                <>
+                  <dt>
+                    {byId[forDetail].published ? 'Published' : 'Unpublished'} by
+                  </dt>
+                  <dd>
+                    <Link to={`/users/${byId[forDetail].publishedBy}`}>
+                      {byId[forDetail].publishedBy}
+                    </Link>
+                  </dd>
+                  <dt>
+                    {byId[forDetail].published ? 'Published' : 'Unpublished'} at
+                  </dt>
+                  <dd>{byId[forDetail].publishedAt.toDate().toString()}</dd>
+                </>
+              )}
+            </dl>
+          )}
+        </Dialog>
       </div>
     </>
   );

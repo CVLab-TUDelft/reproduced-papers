@@ -3,15 +3,22 @@ import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 export default function Dialog({
   title,
-  body,
+  children,
   buttons,
   isOpen,
-  onToggleClick,
+  onToggle,
+  size,
 }) {
+  if (!buttons)
+    buttons = [
+      <button key="close" className="btn btn-secondary" onClick={onToggle}>
+        Close
+      </button>,
+    ];
   return (
-    <Modal isOpen={isOpen} toggle={onToggleClick}>
-      {title && <ModalHeader toggle={onToggleClick}>{title}</ModalHeader>}
-      {body && <ModalBody>{body}</ModalBody>}
+    <Modal isOpen={isOpen} toggle={onToggle} size={size}>
+      {title && <ModalHeader toggle={onToggle}>{title}</ModalHeader>}
+      {children && <ModalBody>{children}</ModalBody>}
       {buttons && <ModalFooter>{buttons}</ModalFooter>}
     </Modal>
   );

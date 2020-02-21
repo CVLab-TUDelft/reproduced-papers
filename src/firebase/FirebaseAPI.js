@@ -40,7 +40,10 @@ export default class FirebaseAPI {
 
   getUser = uid => this.user(uid).get();
 
-  getUsers = () => this.users().get();
+  getUsers = async (params = {}) => {
+    const q = this.users();
+    return this.query(q, params);
+  };
 
   updateUser = async (uid, data) => {
     const doc = this.user(uid);
@@ -87,7 +90,11 @@ export default class FirebaseAPI {
       q = q.limit(limit);
     }
     if (orderBy) {
-      q = q.limit(orderBy);
+      if (Array.isArray(orderBy)) {
+        q = q.orderBy(...orderBy);
+      } else {
+        q = q.orderBy(orderBy);
+      }
     }
     if (startAfter) {
       q = q.startAfter(startAfter);
@@ -102,7 +109,6 @@ export default class FirebaseAPI {
   getPaper = id => this.paper(id).get();
 
   getPapers = async (params = {}) => {
-    let q = this.papers();
     if (get('profile.role')(this.authUser) !== 'admin') {
       const where = ['published', '==', true];
       if (!params.where) {
@@ -111,17 +117,24 @@ export default class FirebaseAPI {
         params.where.push(where);
       }
     }
+    if (!params.orderBy) {
+      params.orderBy = ['createdAt', 'desc'];
+    }
+    const q = this.papers();
     return this.query(q, params);
   };
 
   getUserPapers = async (uid, params = {}) => {
-    let q = this.papers();
     const where = ['createdBy', '==', uid];
     if (!params.where) {
       params.where = [where];
     } else {
       params.where.push(where);
     }
+    if (!params.orderBy) {
+      params.orderBy = ['createdAt', 'desc'];
+    }
+    const q = this.papers();
     return this.query(q, params);
   };
 
@@ -142,7 +155,6 @@ export default class FirebaseAPI {
   getPaperReprod = (paperId, id) => this.reprod(paperId, id).get();
 
   getPaperReprods = async (paperId, params = {}) => {
-    let q = this.paperProds(paperId);
     if (get('profile.role')(this.authUser) !== 'admin') {
       const where = ['published', '==', true];
       if (!params.where) {
@@ -151,13 +163,16 @@ export default class FirebaseAPI {
         params.where.push(where);
       }
     }
+    if (!params.orderBy) {
+      params.orderBy = ['createdAt', 'desc'];
+    }
+    const q = this.paperProds(paperId);
     return this.query(q, params);
   };
 
   reprods = () => this.db.collectionGroup('reprods');
 
   getReprods = async (params = {}) => {
-    let q = this.reprods();
     if (!this.authUser || this.authUser.profile.role !== 'admin') {
       const where = ['published', '==', true];
       if (!params.where) {
@@ -166,17 +181,24 @@ export default class FirebaseAPI {
         params.where.push(where);
       }
     }
+    if (!params.orderBy) {
+      params.orderBy = ['createdAt', 'desc'];
+    }
+    const q = this.reprods();
     return this.query(q, params);
   };
 
   getUserReprods = async (uid, params = {}) => {
-    let q = this.reprods();
     const where = ['createdBy', '==', uid];
     if (!params.where) {
       params.where = [where];
     } else {
       params.where.push(where);
     }
+    if (!params.orderBy) {
+      params.orderBy = ['createdAt', 'desc'];
+    }
+    const q = this.reprods();
     return this.query(q, params);
   };
 

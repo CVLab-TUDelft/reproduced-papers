@@ -76,22 +76,27 @@ function ReprodForm({ paper, reprod }) {
       setLoading(true);
       let doc;
       let message;
+      let snapshot;
       if (reprod) {
         data.updatedAt = firebase.FieldValue.serverTimestamp();
         data.updatedBy = authUser.uid;
         doc = await firebase.updateReprod(paperId, reprod.id, data);
-        await algolia.updateReprod(reprod.id, data);
+        await algolia.updateReprod(doc.id, data);
         message = 'The reproduction has been updated';
       } else {
         data.createdAt = firebase.FieldValue.serverTimestamp();
         data.createdBy = authUser.uid;
         doc = await firebase.addReprod(paperId, data);
-        const snapshot = await doc.get();
+        snapshot = await doc.get();
         await algolia.saveReprod(doc.id, snapshot.data());
         message = 'The reproduction has been submitted';
       }
       addToast(message, { appearance: 'success' });
-      history.push(`/papers/${paperId}#${doc.id}`);
+      history.push(
+        `/users/${
+          reprod ? reprod.get('createdBy') : snapshot.get('createdBy')
+        }/reproductions/${doc.id}`
+      );
     } catch (error) {
       addToast(error.message, { appearance: 'error' });
       setLoading(false);

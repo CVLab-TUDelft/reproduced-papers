@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useFirebase } from '../hooks';
-import UnauthorizedError from './UnauthorizedError';
+import ErrorAlert from './ErrorAlert';
 
 export default function withAuthorization(roles) {
   return function(Component) {
@@ -10,7 +10,9 @@ export default function withAuthorization(roles) {
       const authUser = firebase.authUser;
 
       return !authUser || !roles.includes(authUser.profile.role) ? (
-        <UnauthorizedError />
+        <ErrorAlert title="Restricted Page">
+          You don't have permission to view this page.
+        </ErrorAlert>
       ) : (
         <Component {...props} authUser={authUser} />
       );
