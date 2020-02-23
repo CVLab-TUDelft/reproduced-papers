@@ -1,4 +1,5 @@
 $enable-responsive-font-sizes: true;
+$enable-deprecation-messages: true;
 
 @import '~bootstrap/scss/bootstrap.scss';
 
@@ -14,4 +15,29 @@ body {
 .my-toast {
   width: auto !important;
   max-width: 400px;
+}
+
+.search {
+  width: 100%;
+}
+@media (min-width: 576px) {
+  .search {
+    width: 300px;
+  }
+  .search-input {
+    -webkit-transition: width 0.2s ease-in-out;
+    -moz-transition: width 0.2s ease-in-out;
+    -o-transition: width 0.2s ease-in-out;
+    transition: width 0.2s ease-in-out;
+  }
+  .search-input:focus {
+    width: 543px !important;
+  }
+  .search-results {
+    width: 543px !important;
+    -webkit-transition: visibility 0.2s linear;
+    -moz-transition: visibility 0.2s linear;
+    -o-transition: visibility 0.2s linear;
+    transition: visibility 0.2s linear;
+  }
 }

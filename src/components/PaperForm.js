@@ -160,7 +160,10 @@ function PaperForm({ paper }) {
                 </>
               )}
               {searcher.hits.length > 0 && (
-                <div className="list-group-item text-black-50">
+                <div
+                  className="list-group-item text-muted text-right"
+                  style={{ fontSize: '0.8rem' }}
+                >
                   Search by{' '}
                   <a
                     className="text-black-50"

@@ -44,7 +44,11 @@ function PaperItem({ paper }) {
         role="toolbar"
         aria-label="Toolbar with button groups"
       >
-        <div className="btn-group mr-2" role="group" aria-label="View group">
+        <div
+          className="btn-group mr-2 mb-2"
+          role="group"
+          aria-label="View group"
+        >
           <a
             className="btn btn-primary"
             target="_blank"
@@ -62,7 +66,11 @@ function PaperItem({ paper }) {
             PDF
           </a>
         </div>
-        <div className="btn-group mr-2" role="group" aria-label="Add group">
+        <div
+          className="btn-group mr-2 mb-2"
+          role="group"
+          aria-label="Add group"
+        >
           <Link
             className="btn btn-success"
             to={`/papers/${paper.id}/submit-reproduction`}
@@ -71,7 +79,7 @@ function PaperItem({ paper }) {
           </Link>
         </div>
         {(userRole === 'admin' || userId === data.createdBy) && (
-          <div className="btn-group" role="group" aria-label="Edit group">
+          <div className="btn-group mb-2" role="group" aria-label="Edit group">
             <Link className="btn btn-primary" to={`/papers/${paper.id}/edit`}>
               Edit
             </Link>

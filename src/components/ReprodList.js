@@ -24,7 +24,11 @@ function ReprodCard({ reprod, onDeleteClick, onPublishClick }) {
           role="toolbar"
           aria-label="Toolbar with button groups"
         >
-          <div className="btn-group mr-2" role="group" aria-label="View group">
+          <div
+            className="btn-group mr-2 mb-2"
+            role="group"
+            aria-label="View group"
+          >
             {data.urlBlog && (
               <a
                 className="btn btn-primary"
@@ -45,7 +49,11 @@ function ReprodCard({ reprod, onDeleteClick, onPublishClick }) {
             </a>
           </div>
           {(userRole === 'admin' || userId === data.createdBy) && (
-            <div className="btn-group" role="group" aria-label="Edit group">
+            <div
+              className="btn-group mb-2"
+              role="group"
+              aria-label="Edit group"
+            >
               <Link
                 className="btn btn-primary"
                 to={`/papers/${data.paperId}/reproductions/${reprod.id}/edit`}

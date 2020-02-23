@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { NavLink, Link, useHistory } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
 
@@ -40,207 +40,193 @@ function Header() {
     history.push(path);
   }
 
-  // settimeout may fire after unmount so prevent this situation
-  let willUnmount = useRef(false);
-  useEffect(() => {
-    willUnmount.current = false;
-    return () => {
-      willUnmount.current = true;
-    };
-  });
   function handleBlur() {
-    setTimeout(() => {
-      if (!willUnmount.current) {
-        setFocused(false);
-      }
-    }, 300);
+    setFocused(false);
   }
 
   const loading = paperSearcher.loading || reprodSearcher.loading;
   const numHits = paperSearcher.hits.length + reprodSearcher.hits.length;
   return (
-    <nav className="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-      <div className="container-fluid">
-        <Link className="navbar-brand" to="/">
-          Reproduced Papers
-        </Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbar-main"
-          aria-controls="navbar-main"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <Link className="navbar-brand" to="/">
+        Reproduced Papers
+      </Link>
+      <button
+        className="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbar-main"
+        aria-controls="navbar-main"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span className="navbar-toggler-icon"></span>
+      </button>
+      <div className="collapse navbar-collapse" id="navbar-main">
+        <form
+          className="form-inline my-2 my-lg-0"
+          onSubmit={handleSearchSubmit}
         >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className="collapse navbar-collapse" id="navbar-main">
-          <form
-            className="form-inline my-2 my-lg-0"
-            onSubmit={handleSearchSubmit}
-          >
-            <div className="position-relative" style={{ minWidth: '375px' }}>
-              <input
-                className="form-control mr-sm-2 w-100"
-                type="text"
-                placeholder="Search for papers and reproductions"
-                aria-label="Search"
-                value={paperSearcher.query}
-                onChange={handleSearchChange}
-                onBlur={handleBlur}
-                onFocus={() => setFocused(true)}
-              />
-              {focused && (
-                <div className="list-group position-absolute w-100 mt-1">
-                  {loading && (
-                    <div className="list-group-item search-item">
-                      <Spinner />
-                    </div>
-                  )}
-                  {!numHits && paperSearcher.query !== '' && (
+          <div className="position-relative search">
+            <input
+              className="search-input form-control w-100"
+              type="text"
+              placeholder="Search for papers and reproductions"
+              aria-label="Search"
+              value={paperSearcher.query}
+              onChange={handleSearchChange}
+              onBlur={handleBlur}
+              onFocus={() => setFocused(true)}
+            />
+            <div
+              className={`${
+                focused ? 'visible' : 'invisible'
+              } search-results list-group position-absolute w-100 mt-1`}
+            >
+              {loading && (
+                <div className="list-group-item search-item">
+                  <Spinner />
+                </div>
+              )}
+              {paperSearcher.hits.length > 0 && (
+                <>
+                  <a
+                    href="#papers"
+                    className="list-group-item list-group-item-action disabled"
+                    tabIndex="-1"
+                    aria-disabled="true"
+                  >
+                    PAPERS
+                  </a>
+                  {paperSearcher.hits.map(hit => (
                     <button
                       className="list-group-item list-group-item-action"
-                      onClick={() => handleSearchItemClick(`/submit-paper`)}
+                      key={hit.objectID}
+                      onClick={() =>
+                        handleSearchItemClick(`/papers/${hit.objectID}`)
+                      }
                     >
-                      Submit if not found
+                      {hit.title}
                     </button>
-                  )}
-                  {paperSearcher.hits.length > 0 && (
-                    <>
-                      <a
-                        href="#papers"
-                        className="list-group-item list-group-item-action disabled"
-                        tabIndex="-1"
-                        aria-disabled="true"
-                      >
-                        PAPERS
-                      </a>
-                      {paperSearcher.hits.map(hit => (
-                        <button
-                          className="list-group-item list-group-item-action"
-                          key={hit.objectID}
-                          onClick={() =>
-                            handleSearchItemClick(`/papers/${hit.objectID}`)
-                          }
-                        >
-                          {hit.title}
-                        </button>
-                      ))}
-                    </>
-                  )}
-                  {reprodSearcher.hits.length > 0 && (
-                    <>
-                      <a
-                        href="#reproductions"
-                        className="list-group-item list-group-item-action disabled"
-                        tabIndex="-1"
-                        aria-disabled="true"
-                      >
-                        REPRODUCTIONS
-                      </a>
-                      {reprodSearcher.hits.map(hit => (
-                        <button
-                          className="list-group-item list-group-item-action"
-                          key={hit.objectID}
-                          onClick={() =>
-                            handleSearchItemClick(
-                              `/papers/${hit.paperId}#${hit.objectID}`
-                            )
-                          }
-                        >
-                          {hit.title}
-                        </button>
-                      ))}
-                    </>
-                  )}
-                  {numHits > 0 && (
-                    <div className="list-group-item text-black-50">
-                      Search by{' '}
-                      <a
-                        className="text-black-50"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href="https://algolia.com"
-                      >
-                        Algolia
-                      </a>
-                    </div>
-                  )}
+                  ))}
+                </>
+              )}
+              {reprodSearcher.hits.length > 0 && (
+                <>
+                  <a
+                    href="#reproductions"
+                    className="list-group-item list-group-item-action disabled"
+                    tabIndex="-1"
+                    aria-disabled="true"
+                  >
+                    REPRODUCTIONS
+                  </a>
+                  {reprodSearcher.hits.map(hit => (
+                    <button
+                      className="list-group-item list-group-item-action"
+                      key={hit.objectID}
+                      onClick={() =>
+                        handleSearchItemClick(
+                          `/papers/${hit.paperId}#${hit.objectID}`
+                        )
+                      }
+                    >
+                      {hit.title}
+                    </button>
+                  ))}
+                </>
+              )}
+              {numHits > 0 && (
+                <div
+                  className="list-group-item text-muted text-right"
+                  style={{ fontSize: '0.8rem' }}
+                >
+                  Search by{' '}
+                  <a
+                    className="text-black-50"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://algolia.com"
+                  >
+                    Algolia
+                  </a>
                 </div>
               )}
             </div>
-          </form>
-          <ul className="navbar-nav ml-auto">
-            {authUser && authUser.profile.role === 'admin' && (
-              <li className="nav-item">
-                <NavLink className="nav-link" to="/admin">
-                  Admin
-                </NavLink>
-              </li>
-            )}
+          </div>
+        </form>
+        <ul
+          className="navbar-nav ml-auto"
+          data-toggle="collapse"
+          data-target="#navbar-main.show"
+        >
+          {authUser && authUser.profile.role === 'admin' && (
             <li className="nav-item">
-              <NavLink className="nav-link" to="/papers">
-                Papers
+              <NavLink className="nav-link" to="/admin">
+                Admin
               </NavLink>
             </li>
-            {authUser && (
-              <li className="nav-item">
-                <NavLink className="nav-link" to="/submit-paper">
-                  Submit Paper
-                </NavLink>
-              </li>
-            )}
-            {!authUser && (
-              <li className="nav-item">
-                <a
-                  className="nav-link"
-                  href="#signin"
-                  onClick={handleSigninClick}
+          )}
+          <li className="nav-item">
+            <NavLink className="nav-link" to="/papers">
+              Papers
+            </NavLink>
+          </li>
+          {authUser && (
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/submit-paper">
+                Submit Paper
+              </NavLink>
+            </li>
+          )}
+          {!authUser && (
+            <li className="nav-item">
+              <a
+                className="nav-link"
+                href="#signin"
+                onClick={handleSigninClick}
+              >
+                Sign in
+              </a>
+            </li>
+          )}
+          {authUser && (
+            <li className="nav-item dropdown">
+              <a
+                className="nav-link dropdown-toggle"
+                href="#account"
+                id="account-dropdown"
+                data-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Account
+              </a>
+              <div
+                className="dropdown-menu dropdown-menu-right"
+                aria-labelledby="account-dropdown"
+              >
+                <Link className="dropdown-item" to={`/users/${authUser.uid}`}>
+                  My Profile
+                </Link>
+                <Link
+                  className="dropdown-item"
+                  to={`/users/${authUser.uid}/papers`}
                 >
-                  Sign in
-                </a>
-              </li>
-            )}
-            {authUser && (
-              <li className="nav-item dropdown">
-                <a
-                  className="nav-link dropdown-toggle"
-                  href="#account"
-                  id="account-dropdown"
-                  data-toggle="dropdown"
-                  aria-expanded="false"
+                  My Papers
+                </Link>
+                <Link
+                  className="dropdown-item"
+                  to={`/users/${authUser.uid}/reproductions`}
                 >
-                  Account
-                </a>
-                <div
-                  className="dropdown-menu dropdown-menu-right"
-                  aria-labelledby="account-dropdown"
-                >
-                  <Link className="dropdown-item" to={`/users/${authUser.uid}`}>
-                    My Profile
-                  </Link>
-                  <Link
-                    className="dropdown-item"
-                    to={`/users/${authUser.uid}/papers`}
-                  >
-                    My Papers
-                  </Link>
-                  <Link
-                    className="dropdown-item"
-                    to={`/users/${authUser.uid}/reproductions`}
-                  >
-                    My Reproductions
-                  </Link>
-                  <Link className="dropdown-item" to="/signout">
-                    Sign out
-                  </Link>
-                </div>
-              </li>
-            )}
-          </ul>
-        </div>
+                  My Reproductions
+                </Link>
+                <Link className="dropdown-item" to="/signout">
+                  Sign out
+                </Link>
+              </div>
+            </li>
+          )}
+        </ul>
       </div>
     </nav>
   );
