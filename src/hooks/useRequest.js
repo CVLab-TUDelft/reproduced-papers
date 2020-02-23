@@ -54,25 +54,24 @@ export default function useRequest(fetcher, params) {
   );
 
   // keep mount state
-  const didUnmount = useRef(false);
-
+  const willUnmount = useRef(false);
   useEffect(() => {
-    didUnmount.current = false;
+    willUnmount.current = false;
     dispatch({ type: 'REQUEST' });
     fetcher({ ...params })
       .then(data => {
-        if (!didUnmount.current) {
+        if (!willUnmount.current) {
           dispatch({ type: 'SUCCESS', data });
         }
       })
       .catch(error => {
-        if (!didUnmount.current) {
+        if (!willUnmount.current) {
           dispatch({ type: 'ERROR', error });
           onError && onError(error);
         }
       });
     return () => {
-      didUnmount.current = true;
+      willUnmount.current = true;
     };
   }, [fetcher, onError, params]);
 
@@ -82,12 +81,12 @@ export default function useRequest(fetcher, params) {
       dispatch({ type: 'REQUEST' });
       fetcher({ ...params, startAfter: oldData[oldData.length - 1] })
         .then(data => {
-          if (!didUnmount.current) {
+          if (!willUnmount.current) {
             dispatch({ type: 'APPEND', data });
           }
         })
         .catch(error => {
-          if (!didUnmount.current) {
+          if (!willUnmount.current) {
             dispatch({ type: 'ERROR', error });
             onError && onError(error);
           }
