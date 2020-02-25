@@ -191,11 +191,11 @@ function PaperForm({ paper }) {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="Authors">Author(s)</label>
+          <label htmlFor="authors">Author(s) of the paper</label>
           <input
             type="text"
             className="form-control"
-            id="Authors"
+            id="authors"
             name="authors"
             aria-describedby="authorsHelp"
             onChange={handleChange}

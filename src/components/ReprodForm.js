@@ -136,11 +136,11 @@ function ReprodForm({ paper, reprod }) {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="Authors">Author(s)</label>
+          <label htmlFor="authors">Author(s) of the reproduction</label>
           <input
             type="text"
             className="form-control"
-            id="Authors"
+            id="authors"
             name="authors"
             aria-describedby="authorsHelp"
             onChange={handleChange}
