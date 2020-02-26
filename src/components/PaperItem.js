@@ -57,14 +57,16 @@ function PaperItem({ paper }) {
           >
             Abstract
           </a>
-          <a
-            className="btn btn-secondary"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={data.urlPDF}
-          >
-            PDF
-          </a>
+          {data.urlPDF && (
+            <a
+              className="btn btn-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={data.urlPDF}
+            >
+              PDF
+            </a>
+          )}
         </div>
         <div
           className="btn-group mr-2 mb-2"

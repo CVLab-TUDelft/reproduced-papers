@@ -159,30 +159,34 @@ function Papers() {
               <dd>{byId[forDetail].abstract}</dd>
               <dt>Author(s)</dt>
               <dd>{byId[forDetail].authors.join(', ')}</dd>
-              <dt>URL to abstract</dt>
-              <dd>
-                {byId[forDetail].urlAbstract && (
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={byId[forDetail].urlAbstract}
-                  >
-                    {byId[forDetail].urlAbstract}
-                  </a>
-                )}
-              </dd>
-              <dt>URL to PDF</dt>
-              <dd>
-                {byId[forDetail].urlPDF && (
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={byId[forDetail].urlPDF}
-                  >
-                    {byId[forDetail].urlPDF}
-                  </a>
-                )}
-              </dd>
+              {byId[forDetail].urlAbstract && (
+                <>
+                  <dt>URL to abstract</dt>
+                  <dd>
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={byId[forDetail].urlAbstract}
+                    >
+                      {byId[forDetail].urlAbstract}
+                    </a>
+                  </dd>
+                </>
+              )}
+              {byId[forDetail].urlPDF && (
+                <>
+                  <dt>URL to PDF</dt>
+                  <dd>
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={byId[forDetail].urlPDF}
+                    >
+                      {byId[forDetail].urlPDF}
+                    </a>
+                  </dd>
+                </>
+              )}
               <dt>Submitted by</dt>
               <dd>
                 <Link to={`/users/${byId[forDetail].createdBy}`}>

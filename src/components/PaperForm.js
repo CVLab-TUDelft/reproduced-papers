@@ -237,7 +237,9 @@ function PaperForm({ paper }) {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="urlPDF">URL to PDF</label>
+          <label htmlFor="urlPDF">
+            URL to PDF <span className="text-muted">(optional)</span>
+          </label>
           <input
             type="url"
             className="form-control"
@@ -245,7 +247,6 @@ function PaperForm({ paper }) {
             name="urlPDF"
             onChange={handleChange}
             value={state.urlPDF}
-            required
           />
         </div>
         <Button loading={loading}>{paper ? 'Save' : 'Submit'}</Button>
