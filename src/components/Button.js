@@ -5,6 +5,7 @@ function Button({ children, type, loading, ...props }) {
     <button
       type={type ? type : 'submit'}
       className="btn btn-primary"
+      disabled={loading}
       {...props}
     >
       {loading ? (
