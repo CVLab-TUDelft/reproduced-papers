@@ -20,7 +20,7 @@ service cloud.firestore {
     }
 
     function isPublished() {
-      return resource.data.published;
+      return resource.data.status == 'published';
     }
 
     function getUserData() {
@@ -53,7 +53,7 @@ service cloud.firestore {
 
     function userCreateCheck() {
       return request.resource.data.keys().hasAll(userFields())
-              && request.resource.data['role'] == 'user';
+              && request.resource.data.role == 'user';
     }
 
     function userUpdateCheck() {
@@ -69,7 +69,7 @@ service cloud.firestore {
         'authors',
         'urlAbstract',
         'urlPDF',
-        'published',
+        'status',
         'createdBy',
         'createdAt',
       ]
@@ -78,7 +78,7 @@ service cloud.firestore {
 
     function paperCreateCheck() {
       return request.resource.data.keys().hasAll(paperCreateFields())
-              && !request.resource.data['published'];
+              && request.resource.data.status == 'pending';
     }
 
     function paperUpdateFields() {
@@ -88,9 +88,9 @@ service cloud.firestore {
         'authors',
         'urlAbstract',
         'urlPDF',
-        'published',
-        'publishedBy',
-        'publishedAt',
+        'status',
+        'createdBy',
+        'createdAt',
         'updatedBy',
         'updatedAt',
       ]
@@ -98,7 +98,7 @@ service cloud.firestore {
 
     function paperUpdateCheck() {
       return request.resource.data.keys().hasOnly(paperUpdateFields())
-              && (!('published' in request.resource.data) || !request.resource.data['published']);
+              && request.resource.data.get('status', 'pending') == 'pending';
     }
 
     // reprod related functions
@@ -109,7 +109,8 @@ service cloud.firestore {
         'authors',
         'urlBlog',
         'urlCode',
-        'published',
+        'status',
+        'paperId',
         'createdBy',
         'createdAt',
       ]
@@ -117,7 +118,7 @@ service cloud.firestore {
 
     function reprodCreateCheck() {
       return request.resource.data.keys().hasAll(reprodCreateFields())
-              && !request.resource.data['published'];
+              && request.resource.data.status == 'pending';
     }
 
     function reprodUpdateFields() {
@@ -127,9 +128,10 @@ service cloud.firestore {
         'authors',
         'urlBlog',
         'urlCode',
-        'published',
-        'publishedBy',
-        'publishedAt',
+        'status',
+        'paperId',
+        'createdBy',
+        'createdAt',
         'updatedBy',
         'updatedAt',
       ]
@@ -137,7 +139,7 @@ service cloud.firestore {
 
     function reprodUpdateCheck() {
       return request.resource.data.keys().hasOnly(reprodUpdateFields())
-              && (!('published' in request.resource.data) || !request.resource.data['published']);
+              && request.resource.data.get('status', 'pending') == 'pending';
     }
 
     // Rules
@@ -156,7 +158,7 @@ service cloud.firestore {
     match /papers/{paperId} {
       allow get, list: if isAdmin() || isOwnDocument() || isPublished();
       allow create: if isAdmin() || (isCreatedBySelf() && paperCreateCheck());
-      allow update: if isAdmin() || (isUpdatedBySelf() && paperUpdateCheck());
+      allow update: if isAdmin() || (isUpdatedBySelf() && !isPublished() && paperUpdateCheck());
       allow delete: if isAdmin() || (isOwnDocument() && !isPublished());
     }
 
@@ -164,7 +166,7 @@ service cloud.firestore {
       allow get, list: if isAdmin() || isOwnDocument() || isPublished();
       allow create: if isAdmin() || (isCreatedBySelf() && reprodCreateCheck());
       allow update: if isAdmin() || (isUpdatedBySelf() && reprodUpdateCheck());
-      allow delete: if isAdmin() || (isOwnDocument() && !isPublished());
+      allow delete: if isAdmin() || isOwnDocument();
     }
   }
 }

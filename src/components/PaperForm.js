@@ -12,7 +12,7 @@ const INITIAL_STATE = {
   authors: [],
   urlAbstract: '',
   urlPDF: '',
-  published: false,
+  status: 'pending',
 };
 
 function init(data) {
@@ -22,7 +22,7 @@ function init(data) {
     authors: data.authors.join(', '),
     urlAbstract: data.urlAbstract,
     urlPDF: data.urlPDF,
-    published: false,
+    status: 'pending',
   };
 }
 
@@ -42,7 +42,6 @@ function PaperForm({ paper }) {
     init
   );
   const firebase = useFirebase();
-  const authUser = firebase.authUser;
   const algolia = useAlgolia();
   const { addToast } = useToasts();
   const history = useHistory();
@@ -84,14 +83,10 @@ function PaperForm({ paper }) {
       let message;
       let snapshot;
       if (paper) {
-        data.updatedAt = firebase.FieldValue.serverTimestamp();
-        data.updatedBy = authUser.uid;
         doc = await firebase.updatePaper(paper.id, data);
         await algolia.updatePaper(doc.id, data);
         message = 'The paper has been updated';
       } else {
-        data.createdAt = firebase.FieldValue.serverTimestamp();
-        data.createdBy = authUser.uid;
         doc = await firebase.addPaper(data);
         snapshot = await doc.get();
         await algolia.savePaper(doc.id, snapshot.data());

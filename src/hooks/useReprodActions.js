@@ -7,20 +7,12 @@ export default function useReprodActions() {
   const algolia = useAlgolia();
   const { addToast } = useToasts();
 
-  async function doTogglePublish(id, reprod) {
+  async function doStatusUpdate(id, paperId, status) {
     try {
-      const published = !reprod.published;
-      const data = { published };
-      if (published) {
-        data.publishedAt = firebase.FieldValue.serverTimestamp();
-        data.publishedBy = firebase.authUser.uid;
-      }
-      const doc = await firebase.updateReprod(reprod.paperId, id, data);
+      const data = { status };
+      const doc = await firebase.updateReprod(paperId, id, data);
       await algolia.updateReprod(id, data);
-      const message = published
-        ? 'The reproduction was published'
-        : 'The reproduction was unpublished';
-      addToast(message, { appearance: 'success' });
+      addToast(`The reproduction was ${status}`, { appearance: 'success' });
       return await doc.get();
     } catch (error) {
       addToast(error.message, { appearance: 'error' });
@@ -39,5 +31,5 @@ export default function useReprodActions() {
     }
   }
 
-  return { doTogglePublish, doDelete };
+  return { doStatusUpdate, doDelete };
 }

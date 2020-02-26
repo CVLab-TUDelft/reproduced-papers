@@ -22,10 +22,10 @@ function Reprods({ paper }) {
   const [state, dispatch] = useCollection(data);
   const { byId, ids } = state;
 
-  const { doTogglePublish, doDelete } = useReprodActions();
-  async function handlePublishClick(id) {
+  const { doStatusUpdate, doDelete } = useReprodActions();
+  async function handleStatusChange(id, status) {
     try {
-      const doc = await doTogglePublish(id, byId[id]);
+      const doc = await doStatusUpdate(id, byId[id].paperId, status);
       dispatch({ type: 'SET', id, doc });
     } catch (error) {}
   }
@@ -48,7 +48,7 @@ function Reprods({ paper }) {
         <ReprodList
           {...state}
           onDeleteClick={setForDelete}
-          onPublishClick={handlePublishClick}
+          onStatusChange={handleStatusChange}
         />
         <DeleteDialog
           isOpen={!!forDelete}

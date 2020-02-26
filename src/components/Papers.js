@@ -24,10 +24,10 @@ function Papers() {
   const [state, dispatch] = useCollection(data);
   const { byId } = state;
 
-  const { doTogglePublish, doDelete } = usePaperActions();
-  async function handlePublishClick(id) {
+  const { doStatusUpdate, doDelete } = usePaperActions();
+  async function handleStatusChange(id, status) {
     try {
-      const doc = await doTogglePublish(id, byId[id]);
+      const doc = await doStatusUpdate(id, status);
       dispatch({ type: 'SET', id, doc });
     } catch (error) {}
   }
@@ -47,7 +47,7 @@ function Papers() {
       <PaperList
         {...state}
         onDeleteClick={setForDelete}
-        onPublishClick={handlePublishClick}
+        onStatusClick={handleStatusChange}
       />
       {hasMore && (
         <div className="text-center mb-3">

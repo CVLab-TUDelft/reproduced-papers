@@ -4,8 +4,9 @@ import { get } from 'lodash/fp';
 
 import { useFirebase } from '../hooks';
 import Button from './Button';
+import StatusDropdown from './StatusDropdown';
 
-function ReprodCard({ reprod, onDeleteClick, onPublishClick }) {
+function ReprodCard({ reprod, onDeleteClick, onStatusChange }) {
   const firebase = useFirebase();
   const userId = get('uid', firebase.authUser);
   const userRole = get('profile.role', firebase.authUser);
@@ -60,15 +61,14 @@ function ReprodCard({ reprod, onDeleteClick, onPublishClick }) {
               >
                 Edit
               </Link>
-              {(userRole === 'admin' || !data.published) && (
-                <Button className="btn btn-danger" onClick={onDeleteClick}>
-                  Delete
-                </Button>
-              )}
+              <Button className="btn btn-danger" onClick={onDeleteClick}>
+                Delete
+              </Button>
               {userRole === 'admin' && (
-                <Button className="btn btn-success" onClick={onPublishClick}>
-                  {data.published ? 'Unpublish' : 'Publish'}
-                </Button>
+                <StatusDropdown
+                  status={data.status}
+                  onStatusChange={onStatusChange}
+                />
               )}
             </div>
           )}
@@ -78,13 +78,13 @@ function ReprodCard({ reprod, onDeleteClick, onPublishClick }) {
   );
 }
 
-function ReprodList({ byId, ids, onDeleteClick, onPublishClick }) {
+function ReprodList({ byId, ids, onDeleteClick, onStatusChange }) {
   return ids.map(id => (
     <ReprodCard
       key={id}
       reprod={byId[id].doc}
       onDeleteClick={() => onDeleteClick(id)}
-      onPublishClick={() => onPublishClick(id)}
+      onStatusChange={status => onStatusChange(id, status)}
     />
   ));
 }

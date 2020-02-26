@@ -4,8 +4,9 @@ import { get, truncate } from 'lodash/fp';
 
 import Button from './Button';
 import { useFirebase } from '../hooks';
+import StatusDropdown from './StatusDropdown';
 
-function PaperCard({ paper, onDeleteClick, onPublishClick }) {
+function PaperCard({ paper, onDeleteClick, onStatusChange }) {
   const firebase = useFirebase();
   const userId = get('uid', firebase.authUser);
   const userRole = get('profile.role', firebase.authUser);
@@ -39,18 +40,24 @@ function PaperCard({ paper, onDeleteClick, onPublishClick }) {
               role="group"
               aria-label="Edit group"
             >
-              <Link className="btn btn-primary" to={`/papers/${paper.id}/edit`}>
-                Edit
-              </Link>
-              {(userRole === 'admin' || !data.published) && (
-                <Button className="btn btn-danger" onClick={onDeleteClick}>
-                  Delete
-                </Button>
+              {(userRole === 'admin' || data.status !== 'published') && (
+                <>
+                  <Link
+                    className="btn btn-primary"
+                    to={`/papers/${paper.id}/edit`}
+                  >
+                    Edit
+                  </Link>
+                  <Button className="btn btn-danger" onClick={onDeleteClick}>
+                    Delete
+                  </Button>
+                </>
               )}
               {userRole === 'admin' && (
-                <Button className="btn btn-success" onClick={onPublishClick}>
-                  {data.published ? 'Unpublish' : 'Publish'}
-                </Button>
+                <StatusDropdown
+                  status={data.status}
+                  onStatusChange={onStatusChange}
+                />
               )}
             </div>
           )}
@@ -60,13 +67,13 @@ function PaperCard({ paper, onDeleteClick, onPublishClick }) {
   );
 }
 
-function PaperList({ byId, ids, onDeleteClick, onPublishClick }) {
+function PaperList({ byId, ids, onDeleteClick, onStatusChange }) {
   return ids.map(id => (
     <PaperCard
       key={id}
       paper={byId[id].doc}
       onDeleteClick={() => onDeleteClick(id)}
-      onPublishClick={() => onPublishClick(id)}
+      onStatusChange={onStatusChange}
     />
   ));
 }

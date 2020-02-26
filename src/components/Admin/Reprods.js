@@ -11,10 +11,12 @@ import Button from '../Button';
 import DeleteDialog from '../DeleteDialog';
 import Dialog from '../Dialog';
 import { LIMIT } from '../../constants';
+import StatusDropdown from '../StatusDropdown';
 
 const filters = {
   all: 'All',
-  unpublished: 'Unpublished',
+  pending: 'Pending',
+  rejected: 'Rejected',
   published: 'Published',
 };
 const defaultFilter = 'all';
@@ -24,8 +26,9 @@ function getFilteredIds(filter, state) {
   }
   return state.ids.filter(
     id =>
-      (filter === 'published' && state.byId[id].published) ||
-      (filter === 'unpublished' && !state.byId[id].published)
+      (filter === 'pending' && state.byId[id].status === 'pending') ||
+      (filter === 'rejected' && state.byId[id].status === 'rejected') ||
+      (filter === 'published' && state.byId[id].status === 'published')
   );
 }
 
@@ -42,10 +45,10 @@ function Reprods() {
   const [state, dispatch] = useCollection(data);
   const { byId } = state;
 
-  const { doTogglePublish, doDelete } = useReprodActions();
-  async function handlePublishClick(id) {
+  const { doStatusUpdate, doDelete } = useReprodActions();
+  async function handleStatusChange(id, status) {
     try {
-      const doc = await doTogglePublish(id, byId[id]);
+      const doc = await doStatusUpdate(id, byId[id].paperId, status);
       dispatch({ type: 'SET', id, doc });
     } catch (error) {}
   }
@@ -124,12 +127,10 @@ function Reprods() {
                     >
                       Delete
                     </Button>
-                    <Button
-                      className="btn btn-success"
-                      onClick={() => handlePublishClick(id)}
-                    >
-                      {byId[id].published ? 'Unpublish' : 'Publish'}
-                    </Button>
+                    <StatusDropdown
+                      status={byId[id].status}
+                      onStatusChange={status => handleStatusChange(id, status)}
+                    />
                   </div>
                 </td>
               </tr>
@@ -211,22 +212,6 @@ function Reprods() {
                   </dd>
                   <dt>Updated at</dt>
                   <dd>{byId[forDetail].updatedAt.toDate().toString()}</dd>
-                </>
-              )}
-              {byId[forDetail].publishedBy && (
-                <>
-                  <dt>
-                    {byId[forDetail].published ? 'Published' : 'Unpublished'} by
-                  </dt>
-                  <dd>
-                    <Link to={`/users/${byId[forDetail].publishedBy}`}>
-                      {byId[forDetail].publishedBy}
-                    </Link>
-                  </dd>
-                  <dt>
-                    {byId[forDetail].published ? 'Published' : 'Unpublished'} at
-                  </dt>
-                  <dd>{byId[forDetail].publishedAt.toDate().toString()}</dd>
                 </>
               )}
             </dl>

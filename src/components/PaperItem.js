@@ -6,6 +6,7 @@ import { useFirebase, usePaperActions } from '../hooks';
 import Reprods from './Reprods';
 import DeleteDialog from './DeleteDialog';
 import Button from './Button';
+import StatusDropdown from './StatusDropdown';
 
 function PaperItem({ paper }) {
   const [data, setData] = useState(paper.data());
@@ -13,10 +14,10 @@ function PaperItem({ paper }) {
   const userId = get('uid', firebase.authUser);
   const userRole = get('profile.role', firebase.authUser);
 
-  const { doTogglePublish, doDelete } = usePaperActions();
-  async function handlePublishClick() {
+  const { doStatusUpdate, doDelete } = usePaperActions();
+  async function handleStatusChange(status) {
     try {
-      const doc = await doTogglePublish(paper.id, data);
+      const doc = await doStatusUpdate(paper.id, status);
       setData(doc.data());
     } catch (error) {}
   }
@@ -82,18 +83,27 @@ function PaperItem({ paper }) {
         </div>
         {(userRole === 'admin' || userId === data.createdBy) && (
           <div className="btn-group mb-2" role="group" aria-label="Edit group">
-            <Link className="btn btn-primary" to={`/papers/${paper.id}/edit`}>
-              Edit
-            </Link>
-            {(userRole === 'admin' || !data.published) && (
-              <Button className="btn btn-danger" onClick={() => setOpen(true)}>
-                Delete
-              </Button>
+            {(userRole === 'admin' || data.status !== 'published') && (
+              <>
+                <Link
+                  className="btn btn-primary"
+                  to={`/papers/${paper.id}/edit`}
+                >
+                  Edit
+                </Link>
+                <Button
+                  className="btn btn-danger"
+                  onClick={() => setOpen(true)}
+                >
+                  Delete
+                </Button>
+              </>
             )}
             {userRole === 'admin' && (
-              <Button className="btn btn-success" onClick={handlePublishClick}>
-                {data.published ? 'Unpublish' : 'Publish'}
-              </Button>
+              <StatusDropdown
+                status={data.status}
+                onStatusChange={handleStatusChange}
+              />
             )}
           </div>
         )}

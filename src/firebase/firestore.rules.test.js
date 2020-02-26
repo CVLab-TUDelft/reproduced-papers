@@ -103,7 +103,7 @@ const mockData = {
     authors: ['unpublished'],
     urlAbstract: 'http://unpublished',
     urlPDF: 'http://unpublished',
-    published: false,
+    status: 'pending',
     createdBy: 'user1',
     createdAt: Date.now(),
   },
@@ -113,7 +113,7 @@ const mockData = {
     authors: ['published'],
     urlAbstract: 'http://published',
     urlPDF: 'http://published',
-    published: true,
+    status: 'published',
     createdBy: 'user1',
     createdAt: Date.now(),
   },
@@ -122,7 +122,7 @@ const mockData = {
     description: 'unpublished',
     authors: ['unpublished'],
     urlCode: 'a/b',
-    published: false,
+    status: 'pending',
     createdBy: 'user1',
     createdAt: Date.now(),
   },
@@ -131,7 +131,7 @@ const mockData = {
     description: 'unpublished2',
     authors: ['unpublished2'],
     urlCode: 'a/b',
-    published: false,
+    status: 'pending',
     createdBy: 'user2',
     createdAt: Date.now(),
   },
@@ -140,7 +140,7 @@ const mockData = {
     description: 'published',
     authors: ['published'],
     urlCode: 'a/b',
-    published: true,
+    status: 'published',
     createdBy: 'user1',
     createdAt: Date.now(),
   },
@@ -174,7 +174,7 @@ describe('Reprods rules', () => {
         authors: ['reprod1'],
         urlBlog: '',
         urlCode: 'a/b',
-        published: false,
+        status: 'pending',
         createdBy: 'user1',
         createdAt: Date.now(),
       })
@@ -190,7 +190,7 @@ describe('Reprods rules', () => {
         authors: ['reprod1'],
         urlBlog: '',
         urlCode: 'a/b',
-        published: false,
+        status: 'pending',
         createdBy: 'user1',
         createdAt: Date.now(),
       })
@@ -202,7 +202,7 @@ describe('Reprods rules', () => {
         authors: ['reprod1'],
         urlBlog: '',
         urlCode: 'a/b',
-        published: false,
+        status: 'pending',
         createdBy: 'user2',
         createdAt: Date.now(),
       })
@@ -218,7 +218,7 @@ describe('Reprods rules', () => {
         authors: ['reprod1'],
         urlBlog: '',
         urlCode: 'a/b',
-        published: true,
+        status: 'published',
         createdBy: 'user1',
         createdAt: Date.now(),
       })
@@ -230,7 +230,7 @@ describe('Reprods rules', () => {
         authors: ['reprod1'],
         urlBlog: '',
         urlCode: 'a/b',
-        published: false,
+        status: 'pending',
         // createdBy: 'user1',
         createdBy: 'user1',
       })
@@ -242,7 +242,7 @@ describe('Reprods rules', () => {
         authors: ['reprod1'],
         urlBlog: '',
         urlCode: 'a/b',
-        published: false,
+        status: 'pending',
         createdBy: 'user1',
         createdAt: Date.now(),
       })
@@ -257,7 +257,7 @@ describe('Reprods rules', () => {
         description: 'reprod1',
         authors: ['reprod1'],
         urlCode: 'a/b',
-        published: false,
+        status: 'pending',
         createdBy: 'user1',
         createdAt: Date.now(),
       })
@@ -272,7 +272,7 @@ describe('Reprods rules', () => {
         description: 'reprod1',
         authors: ['reprod1'],
         urlCode: 'a/b',
-        published: false,
+        status: 'pending',
         updatedBy: 'user1',
       })
     ).toAllow();
@@ -282,7 +282,7 @@ describe('Reprods rules', () => {
         description: 'reprod1',
         authors: ['reprod1'],
         urlCode: 'a/b',
-        published: false,
+        status: 'pending',
         updatedBy: 'user2',
       })
     ).toDeny();
@@ -292,7 +292,7 @@ describe('Reprods rules', () => {
         description: 'reprod1',
         authors: ['reprod1'],
         urlCode: 'a/b',
-        published: false,
+        status: 'pending',
         updatedBy: 'user1',
       })
     ).toDeny();
@@ -306,7 +306,7 @@ describe('Reprods rules', () => {
         description: 'reprod1',
         authors: ['reprod1'],
         urlCode: 'a/b',
-        published: false,
+        status: 'pending',
         createdBy: 'user1',
       })
     ).toDeny();

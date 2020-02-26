@@ -11,7 +11,7 @@ const INITIAL_STATE = {
   authors: [],
   urlBlog: '',
   urlCode: '',
-  published: false,
+  status: 'pending',
 };
 
 function init(data) {
@@ -21,7 +21,7 @@ function init(data) {
     authors: data.authors.join(', '),
     urlBlog: data.urlBlog,
     urlCode: data.urlCode,
-    published: false,
+    status: 'pending',
   };
 }
 
@@ -41,7 +41,6 @@ function ReprodForm({ paper, reprod }) {
     init
   );
   const firebase = useFirebase();
-  const authUser = firebase.authUser;
   const algolia = useAlgolia();
   const { addToast } = useToasts();
   const history = useHistory();
@@ -78,14 +77,10 @@ function ReprodForm({ paper, reprod }) {
       let message;
       let snapshot;
       if (reprod) {
-        data.updatedAt = firebase.FieldValue.serverTimestamp();
-        data.updatedBy = authUser.uid;
         doc = await firebase.updateReprod(paperId, reprod.id, data);
         await algolia.updateReprod(doc.id, data);
         message = 'The reproduction has been updated';
       } else {
-        data.createdAt = firebase.FieldValue.serverTimestamp();
-        data.createdBy = authUser.uid;
         doc = await firebase.addReprod(paperId, data);
         snapshot = await doc.get();
         await algolia.saveReprod(doc.id, snapshot.data());
@@ -173,7 +168,7 @@ function ReprodForm({ paper, reprod }) {
           <label htmlFor="urlCode">Github repository</label>
           <div className="input-group mb-3">
             <div className="input-group-prepend">
-              <span className="input-group-text" id="urlCode-addon">
+              <span className="input-group-text" id="urlCodeAddon">
                 https://github.com/
               </span>
             </div>
@@ -186,6 +181,7 @@ function ReprodForm({ paper, reprod }) {
               onChange={handleChange}
               value={state.urlCode}
               required
+              placeholder="username/repository"
             />
           </div>
         </div>

@@ -7,20 +7,12 @@ export default function usePaperActions() {
   const algolia = useAlgolia();
   const { addToast } = useToasts();
 
-  async function doTogglePublish(id, paper) {
+  async function doStatusUpdate(id, status) {
     try {
-      const published = !paper.published;
-      const data = { published };
-      if (published) {
-        data.publishedAt = firebase.FieldValue.serverTimestamp();
-        data.publishedBy = firebase.authUser.uid;
-      }
+      const data = { status };
       const doc = await firebase.updatePaper(id, data);
       await algolia.updatePaper(id, data);
-      const message = published
-        ? 'The paper was published'
-        : 'The paper was unpublished';
-      addToast(message, { appearance: 'success' });
+      addToast(`The paper was ${status}`, { appearance: 'success' });
       return await doc.get();
     } catch (error) {
       addToast(error.message, { appearance: 'error' });
@@ -39,5 +31,5 @@ export default function usePaperActions() {
     }
   }
 
-  return { doTogglePublish, doDelete };
+  return { doStatusUpdate, doDelete };
 }

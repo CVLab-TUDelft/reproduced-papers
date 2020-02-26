@@ -10,7 +10,8 @@ import {
 } from '../../hooks';
 import Button from '../Button';
 import DeleteDialog from '../DeleteDialog';
-import { LIMIT } from '../../constants';
+import { LIMIT, STATUSES } from '../../constants';
+import StatusDropdown from '../StatusDropdown';
 
 // params should be outside of the component
 // otherwise useMemo
@@ -33,10 +34,10 @@ function Papers({ user, me }) {
   const [state, dispatch] = useCollection(data);
   const { byId, ids } = state;
 
-  const { doTogglePublish, doDelete } = usePaperActions();
-  async function handlePublishClick(id) {
+  const { doStatusUpdate, doDelete } = usePaperActions();
+  async function handleStatusChange(id, status) {
     try {
-      const doc = await doTogglePublish(id, byId[id]);
+      const doc = await doStatusUpdate(id, status);
       dispatch({ type: 'SET', id, doc });
     } catch (error) {}
   }
@@ -80,38 +81,65 @@ function Papers({ user, me }) {
                 <td>
                   <span
                     className={`badge badge-${
-                      byId[id].published ? 'success' : 'secondary'
+                      byId[id].status === 'pending'
+                        ? 'secondary'
+                        : byId[id].status === 'rejected'
+                        ? 'warning'
+                        : 'success'
                     }`}
                   >
-                    {byId[id].published ? 'Published' : 'Pending'}
+                    {STATUSES[byId[id].status].label}
                   </span>
                 </td>
                 <td>
-                  <div className="btn-group" role="group">
-                    {(userRole === 'admin' || me) && (
+                  <div
+                    className="btn-toolbar"
+                    role="toolbar"
+                    aria-label="Toolbar with button groups"
+                  >
+                    <div
+                      className="btn-group mr-2 mb-2"
+                      role="group"
+                      aria-label="Add group"
+                    >
                       <Link
-                        className="btn btn-primary"
-                        to={`/papers/${id}/edit`}
-                      >
-                        Edit
-                      </Link>
-                    )}
-                    {(userRole === 'admin' || (me && !byId[id].published)) && (
-                      <Button
-                        className="btn btn-danger"
-                        onClick={() => setSelected(id)}
-                      >
-                        Delete
-                      </Button>
-                    )}
-                    {userRole === 'admin' && (
-                      <Button
                         className="btn btn-success"
-                        onClick={() => handlePublishClick(id)}
+                        to={`/papers/${id}/submit-reproduction`}
                       >
-                        {byId[id].published ? 'Unpublish' : 'Publish'}
-                      </Button>
-                    )}
+                        Add Reproduction
+                      </Link>
+                    </div>
+                    <div
+                      className="btn-group mb-2"
+                      role="group"
+                      aria-label="Edit group"
+                    >
+                      {(userRole === 'admin' ||
+                        (me && byId[id].status !== 'published')) && (
+                        <>
+                          <Link
+                            className="btn btn-primary"
+                            to={`/papers/${id}/edit`}
+                          >
+                            Edit
+                          </Link>
+                          <Button
+                            className="btn btn-danger"
+                            onClick={() => setSelected(id)}
+                          >
+                            Delete
+                          </Button>
+                        </>
+                      )}
+                      {userRole === 'admin' && (
+                        <StatusDropdown
+                          status={byId[id].status}
+                          onStatusChange={status =>
+                            handleStatusChange(id, status)
+                          }
+                        />
+                      )}
+                    </div>
                   </div>
                 </td>
               </tr>

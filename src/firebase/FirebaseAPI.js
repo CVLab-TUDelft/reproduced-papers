@@ -20,17 +20,33 @@ export default class FirebaseAPI {
     this.githubProvider = new app.auth.GithubAuthProvider();
   }
 
-  signInWithGithub = () =>
-    this.auth.signInWithPopup(this.githubProvider).then(result => {
-      if (result.additionalUserInfo.isNewUser) {
-        const data = {
-          displayName: get('user.displayName', result),
-          email: get('user.email', result),
-          role: 'user',
-        };
-        return this.user(get('user.uid', result)).set(data, { merge: true });
-      }
-    });
+  creating = data => ({
+    ...data,
+    createdAt: this.FieldValue.serverTimestamp(),
+    createdBy: this.authUser.uid,
+  });
+
+  updating = data => ({
+    ...data,
+    updatedAt: this.FieldValue.serverTimestamp(),
+    updatedBy: this.authUser.uid,
+  });
+
+  signInWithGithub = async () => {
+    const result = await this.auth.signInWithPopup(this.githubProvider);
+    const uid = get('user.uid', result);
+    const exists = await this.user(uid)
+      .get()
+      .then(doc => doc.exists);
+    if (result.additionalUserInfo.isNewUser || !exists) {
+      const data = {
+        displayName: get('user.displayName', result),
+        email: get('user.email', result),
+        role: 'user',
+      };
+      return this.user(uid).set(data, { merge: true });
+    }
+  };
 
   signOut = () => this.auth.signOut();
 
@@ -47,7 +63,7 @@ export default class FirebaseAPI {
 
   updateUser = async (uid, data) => {
     const doc = this.user(uid);
-    await doc.update(data);
+    await doc.update(this.updating(data));
     return doc;
   };
 
@@ -110,7 +126,7 @@ export default class FirebaseAPI {
 
   getPapers = async (params = {}) => {
     if (get('profile.role')(this.authUser) !== 'admin') {
-      const where = ['published', '==', true];
+      const where = ['status', '==', 'published'];
       if (!params.where) {
         params.where = [where];
       } else {
@@ -138,11 +154,11 @@ export default class FirebaseAPI {
     return this.query(q, params);
   };
 
-  addPaper = data => this.papers().add(data);
+  addPaper = data => this.papers().add(this.creating(data));
 
   updatePaper = async (id, data) => {
     const doc = this.paper(id);
-    await doc.update(data);
+    await doc.update(this.updating(data));
     return doc;
   };
 
@@ -156,7 +172,7 @@ export default class FirebaseAPI {
 
   getPaperReprods = async (paperId, params = {}) => {
     if (get('profile.role')(this.authUser) !== 'admin') {
-      const where = ['published', '==', true];
+      const where = ['status', '==', 'published'];
       if (!params.where) {
         params.where = [where];
       } else {
@@ -174,7 +190,7 @@ export default class FirebaseAPI {
 
   getReprods = async (params = {}) => {
     if (!this.authUser || this.authUser.profile.role !== 'admin') {
-      const where = ['published', '==', true];
+      const where = ['status', '==', 'published'];
       if (!params.where) {
         params.where = [where];
       } else {
@@ -202,11 +218,12 @@ export default class FirebaseAPI {
     return this.query(q, params);
   };
 
-  addReprod = (paperId, data) => this.paperProds(paperId).add(data);
+  addReprod = (paperId, data) =>
+    this.paperProds(paperId).add(this.creating(data));
 
   updateReprod = async (paperId, id, data) => {
     const doc = this.reprod(paperId, id);
-    await doc.update(data);
+    await doc.update(this.updating(data));
     return doc;
   };
 

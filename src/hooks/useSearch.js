@@ -48,7 +48,7 @@ export default function useSearch(index) {
         timeoutId.current = setTimeout(() => {
           const params = {};
           if (!authUser || authUser.profile.role !== 'admin') {
-            params.filters = 'published=1';
+            params.filters = 'status:published';
           }
           algolia
             .search(index, query, params)

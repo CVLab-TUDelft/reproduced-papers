@@ -9,7 +9,8 @@ import {
 } from '../../hooks';
 import Button from '../Button';
 import DeleteDialog from '../DeleteDialog';
-import { LIMIT } from '../../constants';
+import { LIMIT, STATUSES } from '../../constants';
+import StatusDropdown from '../StatusDropdown';
 
 // params should be outside of the component
 // otherwise useMemo
@@ -31,10 +32,10 @@ function Reprods({ user, me }) {
   const [state, dispatch] = useCollection(data);
   const { byId, ids } = state;
 
-  const { doTogglePublish, doDelete } = useReprodActions();
-  async function handlePublishClick(id) {
+  const { doStatusUpdate, doDelete } = useReprodActions();
+  async function handleStatusChange(id, status) {
     try {
-      const doc = await doTogglePublish(id, byId[id]);
+      const doc = await doStatusUpdate(id, byId[id].paperId, status);
       dispatch({ type: 'SET', id, doc });
     } catch (error) {}
   }
@@ -82,37 +83,41 @@ function Reprods({ user, me }) {
                 <td>
                   <span
                     className={`badge badge-${
-                      byId[id].published ? 'success' : 'secondary'
+                      byId[id].status === 'pending'
+                        ? 'secondary'
+                        : byId[id].status === 'rejected'
+                        ? 'warning'
+                        : 'success'
                     }`}
                   >
-                    {byId[id].published ? 'Published' : 'Pending'}
+                    {STATUSES[byId[id].status].label}
                   </span>
                 </td>
                 <td>
                   <div className="btn-group" role="group">
                     {(userRole === 'admin' || me) && (
-                      <Link
-                        className="btn btn-primary"
-                        to={`/papers/${byId[id].paperId}/reproductions/${byId[id].id}/edit`}
-                      >
-                        Edit
-                      </Link>
-                    )}
-                    {(userRole === 'admin' || (me && !byId[id].published)) && (
-                      <Button
-                        className="btn btn-danger"
-                        onClick={() => setSelected(id)}
-                      >
-                        Delete
-                      </Button>
+                      <>
+                        <Link
+                          className="btn btn-primary"
+                          to={`/papers/${byId[id].paperId}/reproductions/${byId[id].id}/edit`}
+                        >
+                          Edit
+                        </Link>
+                        <Button
+                          className="btn btn-danger"
+                          onClick={() => setSelected(id)}
+                        >
+                          Delete
+                        </Button>
+                      </>
                     )}
                     {userRole === 'admin' && (
-                      <Button
-                        className="btn btn-success"
-                        onClick={() => handlePublishClick(id)}
-                      >
-                        {byId[id].published ? 'Unpublish' : 'Publish'}
-                      </Button>
+                      <StatusDropdown
+                        status={byId[id].status}
+                        onStatusChange={status =>
+                          handleStatusChange(id, status)
+                        }
+                      />
                     )}
                   </div>
                 </td>
