@@ -90,14 +90,9 @@ function Header() {
               )}
               {paperSearcher.hits.length > 0 && (
                 <>
-                  <a
-                    href="#papers"
-                    className="list-group-item list-group-item-action disabled"
-                    tabIndex="-1"
-                    aria-disabled="true"
-                  >
+                  <div className="list-group-item list-group-item-primary">
                     PAPERS
-                  </a>
+                  </div>
                   {paperSearcher.hits.map(hit => (
                     <button
                       className="list-group-item list-group-item-action"
@@ -113,14 +108,9 @@ function Header() {
               )}
               {reprodSearcher.hits.length > 0 && (
                 <>
-                  <a
-                    href="#reproductions"
-                    className="list-group-item list-group-item-action disabled"
-                    tabIndex="-1"
-                    aria-disabled="true"
-                  >
+                  <div className="list-group-item list-group-item-primary">
                     REPRODUCTIONS
-                  </a>
+                  </div>
                   {reprodSearcher.hits.map(hit => (
                     <button
                       className="list-group-item list-group-item-action"
@@ -137,19 +127,18 @@ function Header() {
                 </>
               )}
               {numHits > 0 && (
-                <div
-                  className="list-group-item text-muted text-right"
-                  style={{ fontSize: '0.8rem' }}
-                >
-                  Search by{' '}
-                  <a
-                    className="text-black-50"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="https://algolia.com"
-                  >
-                    Algolia
-                  </a>
+                <div className="list-group-item list-group-item-light text-right">
+                  <small>
+                    Search by{' '}
+                    <a
+                      className="text-black-50"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href="https://algolia.com"
+                    >
+                      Algolia
+                    </a>
+                  </small>
                 </div>
               )}
             </div>
