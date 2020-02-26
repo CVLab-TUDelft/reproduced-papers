@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import { useToasts } from 'react-toast-notifications';
 
 import { useAlgolia, useFirebase } from '.';
@@ -31,43 +31,46 @@ export default function useSearch(index) {
   const algolia = useAlgolia();
   const { addToast } = useToasts();
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
+  const timeoutId = useRef(null);
 
+  const willUnmount = useRef(false);
   useEffect(() => {
-    let canceled = false;
-    const query = state.query;
-    let timeoutId;
-    if (query.length > 2) {
-      timeoutId = setTimeout(() => {
-        const params = {};
-        if (!authUser || authUser.profile.role !== 'admin') {
-          params.filters = 'published=1';
-        }
-        algolia
-          .search(index, query, params)
-          .then(result => {
-            if (!canceled) {
-              dispatch({ type: 'SUCCESS', hits: result.hits });
-            }
-          })
-          .catch(error => {
-            if (!canceled) {
-              dispatch({ type: 'ERROR', error });
-              addToast(error.message, { appearance: 'error' });
-            }
-          });
-      }, 300);
-    } else {
-      dispatch({ type: 'EMPTY' });
-    }
-
     return () => {
-      canceled = true;
-      clearTimeout(timeoutId);
+      willUnmount.current = true;
     };
-  }, [addToast, state.query, algolia, authUser, index]);
+  }, []);
 
   function search(query) {
+    clearTimeout(timeoutId.current);
     dispatch({ type: 'SEARCH', query });
+    return new Promise((resolve, reject) => {
+      if (query.length > 2) {
+        timeoutId.current = setTimeout(() => {
+          const params = {};
+          if (!authUser || authUser.profile.role !== 'admin') {
+            params.filters = 'published=1';
+          }
+          algolia
+            .search(index, query, params)
+            .then(result => {
+              if (!willUnmount.current) {
+                dispatch({ type: 'SUCCESS', hits: result.hits });
+                resolve(true);
+              }
+            })
+            .catch(error => {
+              if (!willUnmount.current) {
+                dispatch({ type: 'ERROR', error });
+                addToast(error.message, { appearance: 'error' });
+                resolve(false);
+              }
+            });
+        }, 200);
+      } else {
+        dispatch({ type: 'EMPTY' });
+        resolve(true);
+      }
+    });
   }
 
   return { ...state, search };

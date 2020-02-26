@@ -1,6 +1,6 @@
 import React, { useReducer, useState, useEffect, useRef } from 'react';
 import { useToasts } from 'react-toast-notifications';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 
 import Button from './Button';
 import Spinner from './Spinner';
@@ -48,6 +48,7 @@ function PaperForm({ paper }) {
   const history = useHistory();
   const [focused, setFocused] = useState(false);
   const [loading, setLoading] = useState(false);
+  const searcher = useSearch('papers');
 
   function handleChange(event) {
     dispatch({
@@ -59,12 +60,26 @@ function PaperForm({ paper }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const data = {
-      ...state,
-      authors: state.authors.split(',').map(s => s.trim()),
-    };
     try {
+      // search for already published papers and if it exists don't save it
       setLoading(true);
+      await searcher.search(state.title);
+      if (
+        !paper &&
+        searcher.hits.length > 0 &&
+        searcher.hits.find(
+          hit =>
+            hit.title.trim().toLowerCase() === state.title.trim().toLowerCase()
+        )
+      ) {
+        throw new Error('The paper has already been submitted');
+      }
+
+      // if it does not exist save it
+      const data = {
+        ...state,
+        authors: state.authors.split(',').map(s => s.trim()),
+      };
       let doc;
       let message;
       let snapshot;
@@ -94,9 +109,8 @@ function PaperForm({ paper }) {
     }
   }
 
-  const searcher = useSearch('papers');
-  function showPapers() {
-    searcher.search(state.title);
+  function showPapers(event) {
+    searcher.search(event.target.value);
   }
 
   // settimeout may fire after unmount so prevent this situation
@@ -128,12 +142,13 @@ function PaperForm({ paper }) {
             name="title"
             onChange={event => {
               handleChange(event);
-              showPapers();
+              showPapers(event);
             }}
             value={state.title}
             required
             onBlur={handleBlur}
             onFocus={() => setFocused(true)}
+            autoComplete="off"
           />
           {focused && (
             <div className="list-group position-absolute w-100 mt-1">
@@ -153,26 +168,29 @@ function PaperForm({ paper }) {
                     Already Submitted Papers
                   </a>
                   {searcher.hits.map(hit => (
-                    <div className="list-group-item" key={hit.objectID}>
+                    <Link
+                      key={hit.objectID}
+                      className="list-group-item list-group-item-action"
+                      to={`/papers/${hit.objectID}`}
+                    >
                       {hit.title}
-                    </div>
+                    </Link>
                   ))}
                 </>
               )}
               {searcher.hits.length > 0 && (
-                <div
-                  className="list-group-item text-muted text-right"
-                  style={{ fontSize: '0.8rem' }}
-                >
-                  Search by{' '}
-                  <a
-                    className="text-black-50"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="https://algolia.com"
-                  >
-                    Algolia
-                  </a>
+                <div className="list-group-item list-group-item-light text-right">
+                  <small>
+                    Search by{' '}
+                    <a
+                      className="text-black-50"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href="https://algolia.com"
+                    >
+                      Algolia
+                    </a>
+                  </small>
                 </div>
               )}
             </div>
