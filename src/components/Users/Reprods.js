@@ -9,14 +9,14 @@ import {
 } from '../../hooks';
 import Button from '../Button';
 import DeleteDialog from '../DeleteDialog';
-import { LIMIT, STATUSES } from '../../constants';
+import { LIMIT, STATUSES, BADGES } from '../../constants';
 import StatusDropdown from '../StatusDropdown';
 
 // params should be outside of the component
 // otherwise useMemo
 const params = { limit: LIMIT };
 
-function Reprods({ user, me }) {
+function Reprods({ user, isOwner }) {
   const { reprodId } = useParams();
   const firebase = useFirebase();
 
@@ -50,6 +50,7 @@ function Reprods({ user, me }) {
   }
 
   const userRole = firebase.authUser.profile.role;
+  const isAdmin = userRole === 'admin';
   return (
     <>
       <div className="table-responsive">
@@ -60,6 +61,7 @@ function Reprods({ user, me }) {
               <th>Title</th>
               <th>Author(s)</th>
               <th>Paper ID</th>
+              <th>Badges</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -81,21 +83,26 @@ function Reprods({ user, me }) {
                   </Link>
                 </td>
                 <td>
+                  {byId[id].badges &&
+                    byId[id].badges.map(key => (
+                      <span
+                        key={key}
+                        className={`badge badge-${BADGES[key].color} mr-2`}
+                      >
+                        {BADGES[key].label}
+                      </span>
+                    ))}
+                </td>
+                <td>
                   <span
-                    className={`badge badge-${
-                      byId[id].status === 'pending'
-                        ? 'secondary'
-                        : byId[id].status === 'rejected'
-                        ? 'warning'
-                        : 'success'
-                    }`}
+                    className={`badge badge-${STATUSES[byId[id].status].color}`}
                   >
                     {STATUSES[byId[id].status].label}
                   </span>
                 </td>
                 <td>
-                  <div className="btn-group" role="group">
-                    {(userRole === 'admin' || me) && (
+                  <div className="btn-group btn-group-sm" role="group">
+                    {(isAdmin || isOwner) && (
                       <>
                         <Link
                           className="btn btn-primary"
@@ -111,12 +118,13 @@ function Reprods({ user, me }) {
                         </Button>
                       </>
                     )}
-                    {userRole === 'admin' && (
+                    {isAdmin && (
                       <StatusDropdown
                         status={byId[id].status}
                         onStatusChange={status =>
                           handleStatusChange(id, status)
                         }
+                        size="sm"
                       />
                     )}
                   </div>

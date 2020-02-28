@@ -10,7 +10,7 @@ import {
 import Button from '../Button';
 import DeleteDialog from '../DeleteDialog';
 import Dialog from '../Dialog';
-import { LIMIT } from '../../constants';
+import { LIMIT, BADGES } from '../../constants';
 import StatusDropdown from '../StatusDropdown';
 
 const filters = {
@@ -91,6 +91,7 @@ function Reprods() {
               <th>Title</th>
               <th>Author(s)</th>
               <th>Paper ID</th>
+              <th>Badges</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -108,7 +109,18 @@ function Reprods() {
                   </Link>
                 </td>
                 <td>
-                  <div className="btn-group" role="group">
+                  {byId[id].badges &&
+                    byId[id].badges.map(key => (
+                      <span
+                        key={key}
+                        className={`badge badge-${BADGES[key].color} mr-2`}
+                      >
+                        {BADGES[key].label}
+                      </span>
+                    ))}
+                </td>
+                <td>
+                  <div className="btn-group btn-group-sm" role="group">
                     <Button
                       className="btn btn-secondary"
                       onClick={() => setForDetail(id)}
@@ -130,6 +142,7 @@ function Reprods() {
                     <StatusDropdown
                       status={byId[id].status}
                       onStatusChange={status => handleStatusChange(id, status)}
+                      size="sm"
                     />
                   </div>
                 </td>

@@ -4,6 +4,7 @@ import { useHistory, Link } from 'react-router-dom';
 
 import Button from './Button';
 import { useFirebase, useAlgolia } from '../hooks';
+import { BADGES } from '../constants';
 
 const INITIAL_STATE = {
   title: '',
@@ -11,6 +12,7 @@ const INITIAL_STATE = {
   authors: [],
   urlBlog: '',
   urlCode: '',
+  badges: [],
   status: 'pending',
 };
 
@@ -21,6 +23,7 @@ function init(data) {
     authors: data.authors.join(', '),
     urlBlog: data.urlBlog,
     urlCode: data.urlCode,
+    badges: data.badges || [],
     status: 'pending',
   };
 }
@@ -52,6 +55,20 @@ function ReprodForm({ paper, reprod }) {
       type: 'SET_VALUE',
       name: event.target.name,
       value: event.target.value,
+    });
+  }
+
+  function handleBadgeChange(event) {
+    let badges;
+    if (event.target.checked) {
+      badges = [...state.badges, event.target.value];
+    } else {
+      badges = state.badges.filter(badge => badge !== event.target.value);
+    }
+    dispatch({
+      type: 'SET_VALUE',
+      name: 'badges',
+      value: badges,
     });
   }
 
@@ -184,6 +201,29 @@ function ReprodForm({ paper, reprod }) {
               placeholder="username/repository"
             />
           </div>
+        </div>
+        <div className="form-group">
+          <legend className="col-form-label">Badges</legend>
+          {Object.keys(BADGES).map(key => (
+            <div key={key} className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id={key}
+                value={key}
+                checked={state.badges.includes(key)}
+                onChange={handleBadgeChange}
+              />
+              <label className="form-check-label" htmlFor={key}>
+                <div className={`badge badge-${BADGES[key].color}`}>
+                  {BADGES[key].label}
+                </div>
+                <small className="form-text text-muted">
+                  {BADGES[key].description}
+                </small>
+              </label>
+            </div>
+          ))}
         </div>
         <Button loading={loading}>{reprod ? 'Save' : 'Submit'}</Button>
       </form>

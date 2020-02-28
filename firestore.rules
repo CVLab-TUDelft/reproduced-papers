@@ -78,6 +78,7 @@ service cloud.firestore {
 
     function paperCreateCheck() {
       return request.resource.data.keys().hasAll(paperCreateFields())
+              && request.resource.data.keys().hasOnly(paperCreateFields())
               && request.resource.data.status == 'pending';
     }
 
@@ -110,6 +111,7 @@ service cloud.firestore {
         'urlBlog',
         'urlCode',
         'status',
+        'badges',
         'paperId',
         'createdBy',
         'createdAt',
@@ -118,6 +120,7 @@ service cloud.firestore {
 
     function reprodCreateCheck() {
       return request.resource.data.keys().hasAll(reprodCreateFields())
+              && request.resource.data.keys().hasOnly(reprodCreateFields())
               && request.resource.data.status == 'pending';
     }
 
@@ -129,6 +132,7 @@ service cloud.firestore {
         'urlBlog',
         'urlCode',
         'status',
+        'badges',
         'paperId',
         'createdBy',
         'createdAt',

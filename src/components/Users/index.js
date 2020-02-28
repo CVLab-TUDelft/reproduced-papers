@@ -42,8 +42,8 @@ function Users({ authUser }) {
     );
   }
 
-  const me = userId === authUser.uid;
-  const myPrefix = me ? 'My' : '';
+  const isOwner = userId === authUser.uid;
+  const myPrefix = isOwner ? 'My' : '';
   return (
     <>
       <h1>{user.get('displayName')}</h1>
@@ -66,13 +66,13 @@ function Users({ authUser }) {
       </ul>
       <Switch>
         <Route exact path="/users/:userId">
-          <Profile user={user} me={me} />
+          <Profile user={user} isOwner={isOwner} />
         </Route>
         <Route path="/users/:userId/papers/:paperId?">
-          <Papers user={user} me={me} />
+          <Papers user={user} isOwner={isOwner} />
         </Route>
         <Route path="/users/:userId/reproductions/:reprodId?">
-          <Reprods user={user} me={me} />
+          <Reprods user={user} isOwner={isOwner} />
         </Route>
       </Switch>
     </>

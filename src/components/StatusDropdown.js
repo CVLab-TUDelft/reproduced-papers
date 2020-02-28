@@ -2,9 +2,12 @@ import React from 'react';
 
 import { STATUSES } from '../constants';
 
-function StatusDropdown({ status, onStatusChange }) {
+function StatusDropdown({ status, onStatusChange, size = null }) {
   return (
-    <div className="btn-group" role="group">
+    <div
+      className={`btn-group${size ? ` btn-group-${size}` : ''}`}
+      role="group"
+    >
       <button
         id="status"
         type="button"

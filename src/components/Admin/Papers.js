@@ -102,7 +102,7 @@ function Papers() {
                 <td>{byId[id].title}</td>
                 <td>{byId[id].authors.join(', ')}</td>
                 <td>
-                  <div className="btn-group" role="group">
+                  <div className="btn-group btn-group-sm" role="group">
                     <Button
                       className="btn btn-secondary"
                       onClick={() => setForDetail(id)}
@@ -124,6 +124,7 @@ function Papers() {
                     <StatusDropdown
                       status={byId[id].status}
                       onStatusChange={status => handleStatusChange(id, status)}
+                      size="sm"
                     />
                   </div>
                 </td>

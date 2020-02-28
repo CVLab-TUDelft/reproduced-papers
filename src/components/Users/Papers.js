@@ -17,7 +17,7 @@ import StatusDropdown from '../StatusDropdown';
 // otherwise useMemo
 const params = { limit: LIMIT };
 
-function Papers({ user, me }) {
+function Papers({ user, isOwner }) {
   const { paperId } = useParams();
   const firebase = useFirebase();
   const { addToast } = useToasts();
@@ -54,6 +54,7 @@ function Papers({ user, me }) {
   }
 
   const userRole = firebase.authUser.profile.role;
+  const isAdmin = userRole === 'admin';
   return (
     <>
       <div className="table-responsive">
@@ -98,7 +99,7 @@ function Papers({ user, me }) {
                     aria-label="Toolbar with button groups"
                   >
                     <div
-                      className="btn-group mr-2 mb-2"
+                      className="btn-group btn-group-sm mr-2 mb-2"
                       role="group"
                       aria-label="Add group"
                     >
@@ -110,12 +111,12 @@ function Papers({ user, me }) {
                       </Link>
                     </div>
                     <div
-                      className="btn-group mb-2"
+                      className="btn-group btn-group-sm mb-2"
                       role="group"
                       aria-label="Edit group"
                     >
-                      {(userRole === 'admin' ||
-                        (me && byId[id].status !== 'published')) && (
+                      {(isAdmin ||
+                        (isOwner && byId[id].status !== 'published')) && (
                         <>
                           <Link
                             className="btn btn-primary"
@@ -131,12 +132,13 @@ function Papers({ user, me }) {
                           </Button>
                         </>
                       )}
-                      {userRole === 'admin' && (
+                      {isAdmin && (
                         <StatusDropdown
                           status={byId[id].status}
                           onStatusChange={status =>
                             handleStatusChange(id, status)
                           }
+                          size="sm"
                         />
                       )}
                     </div>
