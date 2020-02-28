@@ -13,3 +13,5 @@ export const algoliaConfig = {
   appId: process.env.REACT_APP_ALGOLIA_APP_ID,
   searchKey: process.env.REACT_APP_ALGOLIA_SEARCH_KEY,
 };
+
+export const base64ContactEmail = 'Yi55aWxkaXpAdHVkZWxmdC5ubA==';
