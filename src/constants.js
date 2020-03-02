@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const LIMIT = 10;
 
 export const STATUSES = {
@@ -9,77 +7,40 @@ export const STATUSES = {
 };
 
 export const BADGES = {
-  replicated: {
-    label: 'Replicated',
-    description: (
-      <>
-        This badge is used for{' '}
-        <em>running the same code (from the authors) on same data.</em>
-      </>
-    ),
-    color: 'primary',
-  },
   reproduced: {
     label: 'Reproduced',
-    description: (
-      <>
-        This badge is used for{' '}
-        <em>
-          coding from scratch by only following the paper and running same
-          experiments on same data.
-        </em>
-      </>
-    ),
+    description:
+      'A full reproduction from scratch without using any pre-existing code.',
     color: 'success',
+  },
+  replicated: {
+    label: 'Replicated',
+    description: 'Existing code was evaluated.',
+    color: 'primary',
   },
   hyperparam: {
     label: 'Hyperparams check',
-    description: (
-      <>
-        This badge is used for{' '}
-        <em>
-          running the code on same data and tuning the hyperparameters to obtain
-          similar results. The code can be from the authors of the paper or
-          written from scratch.
-        </em>
-      </>
-    ),
+    description: 'Evaluating sensitivity to hyperparameters.',
     color: 'secondary',
   },
   newdata: {
     label: 'New data',
-    description: (
-      <>
-        This badge is used for{' '}
-        <em>
-          running the code on different datasets to obtain similar results. The
-          code can be from the authors of the paper or written from scratch.
-        </em>
-      </>
-    ),
+    description: 'Evaluating different datasets to obtain similar results.',
     color: 'danger',
   },
-  newsetting: {
-    label: 'New setting',
-    description: (
-      <>
-        This badge is used for{' '}
-        <em>
-          running the code with a different setting and tuning the
-          hyperparameters to obtain similar results. The code can be from the
-          authors of the paper or written from scratch.
-        </em>
-      </>
-    ),
+  newalgorithm: {
+    label: 'New algorithm variant',
+    description: 'Evaluating a slightly different variant.',
     color: 'info',
+  },
+  newcode: {
+    label: 'New code variant',
+    description: 'Rewrote existing code to be more efficient/readable.',
+    color: 'warning',
   },
   ablation: {
     label: 'Ablation study',
-    description: (
-      <>
-        This badge is used for <em>new ablation studies.</em>
-      </>
-    ),
+    description: 'Additional ablation studies.',
     color: 'dark',
   },
 };
