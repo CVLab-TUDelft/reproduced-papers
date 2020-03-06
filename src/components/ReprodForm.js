@@ -1,7 +1,7 @@
 import React, { useReducer, useState, Fragment } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import { useHistory, Link } from 'react-router-dom';
-import { get, setWith } from 'lodash';
+import { get, setWith, cloneDeep } from 'lodash';
 
 import Button from './Button';
 import { useFirebase, useAlgolia } from '../hooks';
@@ -65,6 +65,10 @@ function ReprodForm({ paper, reprod }) {
   const paperId = paper.id;
   const [loading, setLoading] = useState(false);
 
+  const data = paper.data();
+  const paperTables = data.tables || {};
+  const paperTableKeys = Object.keys(paperTables);
+
   function handleChange(event) {
     dispatch({
       type: 'SET',
@@ -113,8 +117,23 @@ function ReprodForm({ paper, reprod }) {
       );
       return;
     }
+
+    const validatedTables = cloneDeep(tables);
+    for (const tableKey in validatedTables) {
+      const table = validatedTables[tableKey];
+      const values = table.values;
+      for (const rowKey in values) {
+        const row = values[rowKey];
+        for (const colKey in row) {
+          if (paperTables[tableKey].cols[colKey].type === 'numeric') {
+            row[colKey] = parseFloat(row[colKey]);
+          }
+        }
+      }
+    }
     const data = {
       ...state,
+      tables: validatedTables,
       authors: authors.split(',').map(s => s.trim()),
       paperId,
     };
@@ -145,9 +164,6 @@ function ReprodForm({ paper, reprod }) {
     }
   }
 
-  const data = paper.data();
-  const paperTables = data.tables || {};
-  const paperTableKeys = Object.keys(paperTables);
   return (
     <>
       <h1>{reprod ? 'Edit Reproduction' : 'Submit Reproduction'}</h1>
@@ -329,8 +345,15 @@ function ReprodForm({ paper, reprod }) {
                             {Object.keys(paperTables[key].cols).map(colKey => (
                               <td key={`value${key}_${rowKey}_${colKey}`}>
                                 <input
-                                  type="text"
+                                  type={
+                                    paperTables[key].cols[colKey].type ===
+                                    'numeric'
+                                      ? 'number'
+                                      : 'text'
+                                  }
+                                  step="any"
                                   className="form-control form-control-sm"
+                                  style={{ minWidth: '75px' }}
                                   name="value"
                                   onChange={event =>
                                     handleValueChange(

@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import { useHistory, Link } from 'react-router-dom';
+import { cloneDeep } from 'lodash';
 
 import Button from './Button';
 import Spinner from './Spinner';
@@ -322,8 +323,22 @@ function PaperForm({ paper }) {
       }
 
       // if it does not exist save it
+      const validatedTables = cloneDeep(tables);
+      for (const tableKey in validatedTables) {
+        const table = validatedTables[tableKey];
+        const values = table.values;
+        for (const rowKey in values) {
+          const row = values[rowKey];
+          for (const colKey in row) {
+            if (table.cols[colKey].type === 'numeric') {
+              row[colKey] = parseFloat(row[colKey]);
+            }
+          }
+        }
+      }
       const data = {
         ...state,
+        tables: validatedTables,
         authors: authors.split(',').map(s => s.trim()),
       };
       let doc;
@@ -719,8 +734,14 @@ function PaperForm({ paper }) {
                         {Object.keys(tables[key].cols).map(colKey => (
                           <td key={`value${key}_${rowKey}_${colKey}`}>
                             <input
-                              type="text"
+                              type={
+                                tables[key].cols[colKey].type === 'numeric'
+                                  ? 'number'
+                                  : 'text'
+                              }
+                              step="any"
                               className="form-control form-control-sm"
+                              style={{ minWidth: '75px' }}
                               name="value"
                               onChange={event =>
                                 handleValueChange(key, rowKey, colKey, event)
