@@ -47,9 +47,9 @@ function About() {
             data-toggle="tooltip"
             data-placement="top"
             onClick={event => event.preventDefault()}
-            href="#email"
+            href="#e-mail"
           >
-            email
+            e-mail
           </a>
           .
         </p>
