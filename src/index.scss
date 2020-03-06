@@ -8,6 +8,7 @@ body {
 }
 
 .my-toast-container {
+  position: fixed;
   top: 4rem !important;
   z-index: $zindex-popover !important;
 }

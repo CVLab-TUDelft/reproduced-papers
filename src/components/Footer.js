@@ -3,7 +3,7 @@ import React from 'react';
 function Footer() {
   return (
     <footer className="d-flex justify-content-center">
-      <p>
+      <div className="container text-center mt-2">
         Reproduced Papers{' '}
         <small className="text-muted">
           by{' '}
@@ -15,7 +15,7 @@ function Footer() {
             TU Delft CV-Lab
           </a>
         </small>
-      </p>
+      </div>
     </footer>
   );
 }
