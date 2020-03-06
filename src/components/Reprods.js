@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 
 import {
   useFirebase,
@@ -10,7 +10,7 @@ import Spinner from './Spinner';
 import DeleteDialog from './DeleteDialog';
 import ReprodList from './ReprodList';
 
-function Reprods({ paper }) {
+function Reprods({ paper, onReprodsFetched }) {
   const firebase = useFirebase();
 
   // fetch reproductions
@@ -21,6 +21,10 @@ function Reprods({ paper }) {
   const { data, loading } = useRequest(reprodsFetcher);
   const [state, dispatch] = useCollection(data);
   const { byId, ids } = state;
+
+  useEffect(() => {
+    onReprodsFetched(state);
+  }, [state, onReprodsFetched]);
 
   const { doStatusUpdate, doDelete } = useReprodActions();
   async function handleStatusChange(id, status) {

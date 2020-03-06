@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { get } from 'lodash/fp';
+import { get } from 'lodash';
 
 import { useFirebase, usePaperActions } from '../hooks';
 import Reprods from './Reprods';
@@ -8,11 +8,62 @@ import DeleteDialog from './DeleteDialog';
 import Button from './Button';
 import StatusDropdown from './StatusDropdown';
 
+function findBests(paper, reprods) {
+  const tables = paper.data().tables || {};
+  let bests = {};
+  if (!reprods) {
+    return bests;
+  }
+  for (const tableKey in tables) {
+    const table = tables[tableKey];
+    for (const colKey in table.cols) {
+      const col = table.cols[colKey];
+      if (col.type === 'numeric') {
+        const defaultVal = col.best === 'highest' ? -Infinity : Infinity;
+        let vals = {};
+        for (const rowKey in table.rows) {
+          for (const reprodId in reprods.byId) {
+            const val = parseFloat(
+              get(reprods.byId, [
+                reprodId,
+                'tables',
+                tableKey,
+                'values',
+                rowKey,
+                colKey,
+              ])
+            );
+            vals[`${tableKey}_${rowKey}_${colKey}_${reprodId}`] = isNaN(val)
+              ? defaultVal
+              : val;
+          }
+          const val = parseFloat(table.values[rowKey][colKey]);
+          vals[`${tableKey}_${rowKey}_${colKey}_${paper.id}`] = isNaN(val)
+            ? defaultVal
+            : val;
+        }
+        const bestKey = Object.keys(vals).reduce((b, c) =>
+          col.best === 'highest'
+            ? vals[c] > vals[b]
+              ? c
+              : b
+            : vals[c] < vals[b]
+            ? c
+            : b
+        );
+        bests[bestKey] = true;
+      }
+    }
+  }
+  return bests;
+}
+
 function PaperItem({ paper }) {
   const [data, setData] = useState(paper.data());
+  const [reprods, setReprods] = useState(null);
   const firebase = useFirebase();
-  const userId = get('uid', firebase.authUser);
-  const userRole = get('profile.role', firebase.authUser);
+  const userId = get(firebase.authUser, 'uid');
+  const userRole = get(firebase.authUser, 'profile.role');
 
   const { doStatusUpdate, doDelete } = usePaperActions();
   async function handleStatusChange(status) {
@@ -32,6 +83,9 @@ function PaperItem({ paper }) {
     } catch (error) {}
   }
 
+  const tables = data.tables || {};
+  const tableKeys = Object.keys(tables);
+  const bests = findBests(paper, reprods);
   return (
     <>
       <h1>
@@ -40,6 +94,94 @@ function PaperItem({ paper }) {
         <small className="text-muted">by {data.authors.join(', ')}</small>
       </h1>
       <p>{data.abstract}</p>
+      {tableKeys.length > 0 &&
+        tableKeys.map((key, index) => (
+          <Fragment key={key}>
+            <div className="table-responsive d-flex justify-content-center">
+              <table
+                className="table table-bordered table-sm"
+                style={{ width: 'auto' }}
+              >
+                <caption style={{ captionSide: 'top' }}>
+                  {`Table ${index + 1}: ${tables[key].title}`}
+                </caption>
+                <thead>
+                  <tr>
+                    <th colSpan={2}></th>
+                    {Object.keys(tables[key].cols).map(colKey => (
+                      <th key={`name${key}_${colKey}`} className="align-bottom">
+                        {tables[key].cols[colKey].name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(tables[key].rows).map((rowKey, index) => (
+                    <tr key={`row${key}_${rowKey}`}>
+                      {index === 0 && (
+                        <th
+                          className="align-middle"
+                          rowSpan={Object.keys(tables[key].rows).length}
+                        >
+                          The paper
+                        </th>
+                      )}
+                      <th>{tables[key].rows[rowKey].name}</th>
+                      {Object.keys(tables[key].cols).map(colKey => (
+                        <td
+                          key={`value${key}_${rowKey}_${colKey}`}
+                          className={`${
+                            bests[`${key}_${rowKey}_${colKey}_${paper.id}`]
+                              ? 'font-weight-bold'
+                              : ''
+                          }`}
+                        >
+                          {tables[key].values[rowKey][colKey]}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                  {reprods &&
+                    reprods.ids.map((reprodId, reprodIndex) =>
+                      Object.keys(tables[key].rows).map((rowKey, index) => (
+                        <tr key={`row${key}_${rowKey}`}>
+                          {index === 0 && (
+                            <th
+                              className="align-middle"
+                              rowSpan={Object.keys(tables[key].rows).length}
+                            >
+                              <a
+                                href={`#${reprods.byId[reprodId].id}`}
+                              >{`Reproduction #${reprodIndex + 1}`}</a>
+                            </th>
+                          )}
+                          <th>{tables[key].rows[rowKey].name}</th>
+                          {Object.keys(tables[key].cols).map(colKey => (
+                            <td
+                              key={`value${key}_${rowKey}_${colKey}`}
+                              className={`${
+                                bests[`${key}_${rowKey}_${colKey}_${reprodId}`]
+                                  ? 'font-weight-bold'
+                                  : ''
+                              }`}
+                            >
+                              {get(reprods.byId[reprodId], [
+                                'tables',
+                                key,
+                                'values',
+                                rowKey,
+                                colKey,
+                              ]) || '-'}
+                            </td>
+                          ))}
+                        </tr>
+                      ))
+                    )}
+                </tbody>
+              </table>
+            </div>
+          </Fragment>
+        ))}
       <div
         className="btn-toolbar"
         role="toolbar"
@@ -114,7 +256,7 @@ function PaperItem({ paper }) {
         onToggle={() => setOpen(false)}
         itemName={data.title}
       />
-      <Reprods paper={paper} />
+      <Reprods paper={paper} onReprodsFetched={setReprods} />
     </>
   );
 }
