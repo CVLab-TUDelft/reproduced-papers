@@ -161,13 +161,11 @@ function Header() {
               Papers
             </NavLink>
           </li>
-          {authUser && (
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/submit-paper">
-                Submit Paper
-              </NavLink>
-            </li>
-          )}
+          <li className="nav-item">
+            <NavLink className="nav-link" to="/submit-paper">
+              Submit Paper
+            </NavLink>
+          </li>
           <li className="nav-item">
             <NavLink className="nav-link" to="/about">
               About

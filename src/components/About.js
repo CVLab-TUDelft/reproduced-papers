@@ -30,14 +30,14 @@ function About() {
           <li>Submitting papers and reproductions,</li>
           <li>Improving the web app.</li>
         </ol>
-        <p>
+        <p className="lead">
           You can find the source code of the web app at{' '}
           <a href="https://github.com/byildiz/reproduced-papers">
             the github repository
           </a>
           .
         </p>
-        <p>Please don't hesitate to send pull request!</p>
+        <p className="lead">Please don't hesitate to send pull request!</p>
       </div>
       <div className="my-3">
         <h1>Contact</h1>

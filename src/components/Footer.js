@@ -3,7 +3,7 @@ import React from 'react';
 function Footer() {
   return (
     <footer className="d-flex justify-content-center">
-      <div className="container text-center mt-2">
+      <div className="container text-center my-2">
         Reproduced Papers{' '}
         <small className="text-muted">
           by{' '}
