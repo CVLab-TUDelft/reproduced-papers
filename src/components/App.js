@@ -27,14 +27,11 @@ function App() {
       <Header />
       <main role="main" className="container">
         <Switch>
-          <Route exact path="/">
-            <Home />
+          <Route exact path={['/', '/papers']}>
+            <Papers />
           </Route>
           <Route exact path="/submit-paper">
             <SubmitPaper />
-          </Route>
-          <Route exact path="/papers">
-            <Papers />
           </Route>
           <Route path="/papers/:paperId">
             <Paper />
