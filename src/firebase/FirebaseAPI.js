@@ -172,11 +172,14 @@ export default class FirebaseAPI {
 
   getPaperReprods = async (paperId, params = {}) => {
     if (get('profile.role')(this.authUser) !== 'admin') {
-      const where = ['status', '==', 'published'];
+      const where = [
+        ['status', '==', 'published'],
+        ['visibility', '==', 'public'],
+      ];
       if (!params.where) {
-        params.where = [where];
+        params.where = where;
       } else {
-        params.where.push(where);
+        params.where = [...params.where, ...where];
       }
     }
     if (!params.orderBy) {
@@ -190,11 +193,14 @@ export default class FirebaseAPI {
 
   getReprods = async (params = {}) => {
     if (!this.authUser || this.authUser.profile.role !== 'admin') {
-      const where = ['status', '==', 'published'];
+      const where = [
+        ['status', '==', 'published'],
+        ['visibility', '==', 'public'],
+      ];
       if (!params.where) {
-        params.where = [where];
+        params.where = where;
       } else {
-        params.where.push(where);
+        params.where = [...params.where, ...where];
       }
     }
     if (!params.orderBy) {

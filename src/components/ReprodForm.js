@@ -13,6 +13,7 @@ const INITIAL_STATE = {
   authors: [],
   urlBlog: '',
   urlCode: '',
+  visibility: 'public',
   badges: [],
   tables: {},
   status: 'pending',
@@ -27,6 +28,7 @@ function init(data) {
       : data.authors,
     urlBlog: data.urlBlog,
     urlCode: data.urlCode,
+    visibility: data.visibility,
     badges: data.badges,
     tables: data.tables,
     status: 'pending',
@@ -54,6 +56,7 @@ function ReprodForm({ paper, reprod }) {
     authors,
     urlBlog,
     urlCode,
+    visibility,
     badges,
     tables,
   } = state;
@@ -248,6 +251,45 @@ function ReprodForm({ paper, reprod }) {
               required
               placeholder="username/repository"
             />
+          </div>
+        </div>
+        <div className="form-group">
+          <legend className="col-form-label">Visibility</legend>
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              id="publicRadio"
+              type="radio"
+              name="visibility"
+              value="public"
+              checked={visibility === 'public'}
+              onChange={handleChange}
+            />
+            <label className="form-check-label" htmlFor="publicRadio">
+              Public
+              <br />
+              <small className="form-text text-muted">
+                Everyone can see this reproduction.
+              </small>
+            </label>
+          </div>
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              id="privateRadio"
+              type="radio"
+              name="visibility"
+              value="private"
+              checked={visibility === 'private'}
+              onChange={handleChange}
+            />
+            <label className="form-check-label" htmlFor="privateRadio">
+              Private
+              <br />
+              <small className="form-text text-muted">
+                Only you and the administrators can see this reproduction.
+              </small>
+            </label>
           </div>
         </div>
         <div className="form-group">

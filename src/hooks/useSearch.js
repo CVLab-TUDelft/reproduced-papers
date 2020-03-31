@@ -49,6 +49,9 @@ export default function useSearch(index) {
           const params = {};
           if (!authUser || authUser.profile.role !== 'admin') {
             params.filters = 'status:published';
+            if (index === 'reprods') {
+              params.filters += ' AND visibility:public';
+            }
           }
           algolia
             .search(index, query, params)
