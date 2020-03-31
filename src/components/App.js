@@ -6,7 +6,6 @@ import { useAuthentication } from '../hooks';
 import Header from './Header';
 import Footer from './Footer';
 import Spinner from './Spinner';
-import Home from './Home';
 import SubmitPaper from './SubmitPaper';
 import Papers from './Papers';
 import Paper from './Paper';
