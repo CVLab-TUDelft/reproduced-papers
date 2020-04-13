@@ -9,12 +9,13 @@ export default function Dialog({
   onToggle,
   size,
 }) {
-  if (!buttons)
+  if (!buttons) {
     buttons = [
       <button key="close" className="btn btn-secondary" onClick={onToggle}>
         Close
       </button>,
     ];
+  }
   return (
     <Modal isOpen={isOpen} toggle={onToggle} size={size}>
       {title && <ModalHeader toggle={onToggle}>{title}</ModalHeader>}
