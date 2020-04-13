@@ -60,7 +60,6 @@ function Reprods({ user, isOwner }) {
               <th>Reproduction ID</th>
               <th>Title</th>
               <th>Author(s)</th>
-              <th>Paper ID</th>
               <th>Badges</th>
               <th>Status</th>
               <th>Actions</th>
@@ -77,11 +76,6 @@ function Reprods({ user, isOwner }) {
                 </td>
                 <td>{byId[id].title}</td>
                 <td>{byId[id].authors.join(', ')}</td>
-                <td>
-                  <Link to={`/papers/${byId[id].paperId}`}>
-                    {byId[id].paperId}
-                  </Link>
-                </td>
                 <td>
                   {byId[id].badges &&
                     byId[id].badges.map(key => (
