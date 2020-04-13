@@ -12,6 +12,7 @@ import Paper from './Paper';
 import Admin from './Admin';
 import Users from './Users';
 import SignOut from './SignOut';
+import Help from './Help';
 import About from './About';
 
 function App() {
@@ -43,6 +44,9 @@ function App() {
           </Route>
           <Route path="/signout">
             <SignOut />
+          </Route>
+          <Route path="/help">
+            <Help />
           </Route>
           <Route path="/about">
             <About />
