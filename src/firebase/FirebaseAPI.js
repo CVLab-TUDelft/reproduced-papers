@@ -44,7 +44,7 @@ export default class FirebaseAPI {
         email: get('user.email', result),
         role: 'user',
       };
-      return this.user(uid).set(data, { merge: true });
+      return this.user(uid).set(this.creating(data), { merge: true });
     }
   };
 
