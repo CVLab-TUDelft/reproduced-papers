@@ -7,6 +7,7 @@ import Reprods from './Reprods';
 import DeleteDialog from './DeleteDialog';
 import Button from './Button';
 import StatusDropdown from './StatusDropdown';
+import Badge from './Badge';
 
 function findBests(paper, reprods) {
   const tables = paper.data().tables || {};
@@ -83,17 +84,32 @@ function PaperItem({ paper }) {
     } catch (error) {}
   }
 
+  // find all tables
   const tables = reprods
     ? reprods.ids.reduce(
         (prev, curr) => ({ ...prev, ...reprods.byId[curr].tables }),
         {}
       )
     : {};
-
   const tableKeys = Object.keys(tables);
+
+  // find all badges
+  const badges = new Set();
+  if (reprods) {
+    reprods.ids.forEach(id =>
+      get(reprods.byId[id], 'badges', []).forEach(badge => badges.add(badge))
+    );
+  }
+
+  // find best values
   const bests = findBests(paper, reprods);
   return (
     <>
+      <div className="mb-2">
+        {Array.from(badges).map(badgeKey => (
+          <Badge key={badgeKey} badgeKey={badgeKey} />
+        ))}
+      </div>
       <h1>
         {data.title}
         <br />
