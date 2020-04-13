@@ -17,7 +17,14 @@ function Reprod({ paper }) {
   );
   const { data: reprod, loading: reprodLoading } = useRequest(reprodFetcher);
 
-  if (reprodLoading) {
+  // fetch reproductions
+  const reprodsFetcher = useCallback(() => firebase.getPaperReprods(paper.id), [
+    paper.id,
+    firebase,
+  ]);
+  const { data: reprods, loading: reprodsLoading } = useRequest(reprodsFetcher);
+
+  if (reprodLoading || reprodsLoading) {
     return <Spinner />;
   }
 
@@ -29,10 +36,14 @@ function Reprod({ paper }) {
     );
   }
 
+  const tables = reprods
+    ? reprods.reduce((prev, curr) => ({ ...prev, ...curr.tables }), {})
+    : {};
+
   return (
     <Switch>
       <Route exact path="/papers/:paperId/reproductions/:reprodId/edit">
-        <ReprodForm paper={paper} reprod={reprod} />
+        <ReprodForm paper={paper} reprod={reprod} paperTables={tables} />
       </Route>
     </Switch>
   );

@@ -2,8 +2,10 @@ import React, { useReducer, useState, Fragment } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import { useHistory, Link } from 'react-router-dom';
 import { get, setWith, cloneDeep } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 import Button from './Button';
+import TableEditor from './TableEditor';
 import { useFirebase, useAlgolia } from '../hooks';
 import { BADGES } from '../constants';
 
@@ -16,6 +18,7 @@ const INITIAL_STATE = {
   visibility: 'public',
   badges: [],
   tables: {},
+  tableValues: {},
   status: 'pending',
 };
 
@@ -31,6 +34,7 @@ function init(data) {
     visibility: data.visibility,
     badges: data.badges,
     tables: data.tables,
+    tableValues: data.tableValues,
     status: 'pending',
   };
 }
@@ -44,7 +48,24 @@ function reducer(state, action) {
   }
 }
 
-function ReprodForm({ paper, reprod }) {
+const INITIAL_COL = {
+  name: '',
+  type: 'numeric',
+  best: 'highest',
+};
+
+const INITIAL_ROW = {
+  name: '',
+};
+
+const INITIAL_TABLE = {
+  title: '',
+  cols: { '0': { ...INITIAL_COL } },
+  rows: { '0': { ...INITIAL_ROW } },
+  values: { '0': { '0': '' } },
+};
+
+function ReprodForm({ paper, paperTables = {}, reprod }) {
   const [state, dispatch] = useReducer(
     reducer,
     reprod ? { ...INITIAL_STATE, ...reprod.data() } : INITIAL_STATE,
@@ -59,6 +80,7 @@ function ReprodForm({ paper, reprod }) {
     visibility,
     badges,
     tables,
+    tableValues,
   } = state;
 
   const firebase = useFirebase();
@@ -69,7 +91,6 @@ function ReprodForm({ paper, reprod }) {
   const [loading, setLoading] = useState(false);
 
   const data = paper.data();
-  const paperTables = data.tables || {};
   const paperTableKeys = Object.keys(paperTables);
 
   function handleChange(event) {
@@ -95,18 +116,27 @@ function ReprodForm({ paper, reprod }) {
   }
 
   function handleValueChange(key, rowKey, colKey, event) {
-    const nextTables = { ...tables };
-    setWith(
-      nextTables,
-      [key, 'values', rowKey, colKey],
-      event.target.value,
-      Object
-    );
+    const nextValues = { ...tableValues };
+    setWith(nextValues, [key, rowKey, colKey], event.target.value, Object);
     dispatch({
       type: 'SET',
-      name: 'tables',
-      value: nextTables,
+      name: 'tableValues',
+      value: nextValues,
     });
+  }
+
+  function validateValues(values, tableKey) {
+    const allTables = { ...tables, ...paperTables };
+    const validatedValues = cloneDeep(values);
+    for (const rowKey in validatedValues) {
+      const row = validatedValues[rowKey];
+      for (const colKey in row) {
+        if (allTables[tableKey].cols[colKey].type === 'numeric') {
+          row[colKey] = parseFloat(row[colKey]);
+        }
+      }
+    }
+    return validatedValues;
   }
 
   async function handleSubmit(event) {
@@ -124,19 +154,17 @@ function ReprodForm({ paper, reprod }) {
     const validatedTables = cloneDeep(tables);
     for (const tableKey in validatedTables) {
       const table = validatedTables[tableKey];
-      const values = table.values;
-      for (const rowKey in values) {
-        const row = values[rowKey];
-        for (const colKey in row) {
-          if (paperTables[tableKey].cols[colKey].type === 'numeric') {
-            row[colKey] = parseFloat(row[colKey]);
-          }
-        }
-      }
+      table.values = validateValues(table.values, tableKey);
+    }
+    const validatedTableValues = cloneDeep(tableValues);
+    for (const tableKey in validatedTableValues) {
+      const values = validatedTableValues[tableKey];
+      validatedTableValues[tableKey] = validateValues(values, tableKey);
     }
     const data = {
       ...state,
       tables: validatedTables,
+      tableValues: validatedTableValues,
       authors: authors.split(',').map(s => s.trim()),
       paperId,
     };
@@ -165,6 +193,44 @@ function ReprodForm({ paper, reprod }) {
       addToast(error.message, { appearance: 'error' });
       setLoading(false);
     }
+  }
+
+  // Table releated functions
+  function addTable() {
+    const keys = Object.keys(tables);
+    if (keys.length > 0 && !tables[keys[keys.length - 1]].title) {
+      addToast('Fill in the added table(s) first', { appearance: 'warning' });
+      return;
+    }
+    const key = uuidv4();
+    const nextTables = { ...tables, [key]: cloneDeep(INITIAL_TABLE) };
+    dispatch({
+      type: 'SET',
+      name: 'tables',
+      value: nextTables,
+    });
+  }
+
+  function removeTable(key) {
+    const nextTables = { ...tables };
+    delete nextTables[key];
+    dispatch({
+      type: 'SET',
+      name: 'tables',
+      value: nextTables,
+    });
+  }
+
+  function handleTableChange(key, table) {
+    const nextTables = {
+      ...tables,
+      [key]: table,
+    };
+    dispatch({
+      type: 'SET',
+      name: 'tables',
+      value: nextTables,
+    });
   }
 
   return (
@@ -315,114 +381,127 @@ function ReprodForm({ paper, reprod }) {
             </div>
           ))}
         </div>
-        {paperTableKeys.length > 0 && (
-          <div className="form-group">
-            <label htmlFor="tables">
-              Comparison Table(s) <span className="text-muted">(optional)</span>
-            </label>
-            <small className="form-text text-muted mb-2">
-              There should be reproduced results to compare them quickly with
-              the paper and the others reproductions.
-            </small>
-            {paperTableKeys.map((key, index) => (
-              <Fragment key={key}>
-                <div className="table-responsive">
-                  <table
-                    className="table table-bordered table-sm"
-                    style={{ width: 'auto' }}
-                  >
-                    <caption style={{ captionSide: 'top' }}>
-                      {`Table ${index + 1}: ${paperTables[key].title}`}
-                    </caption>
-                    <thead>
-                      <tr>
-                        <th colSpan={2}></th>
-                        {Object.keys(paperTables[key].cols).map(colKey => (
+        <div className="form-group">
+          <label htmlFor="tables">
+            Comparison Table(s) <span className="text-muted">(optional)</span>
+          </label>
+          <small className="form-text text-muted mb-2">
+            Fill in the tables which have comparable results with your results.
+          </small>
+          {paperTableKeys.map((key, index) => (
+            <Fragment key={key}>
+              <div className="table-responsive">
+                <table
+                  className="table table-bordered table-sm"
+                  style={{ width: 'auto' }}
+                >
+                  <caption style={{ captionSide: 'top' }}>
+                    {`Table ${index + 1}: ${paperTables[key].title}`}
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th colSpan={2}></th>
+                      {Object.keys(paperTables[key].cols).map(colKey => (
+                        <th
+                          key={`name${key}_${colKey}`}
+                          className="align-bottom"
+                        >
+                          {paperTables[key].cols[colKey].name}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.keys(paperTables[key].rows).map((rowKey, index) => (
+                      <tr key={`row${key}_${rowKey}`}>
+                        {index === 0 && (
                           <th
-                            key={`name${key}_${colKey}`}
-                            className="align-bottom"
+                            className="align-middle"
+                            rowSpan={Object.keys(paperTables[key].rows).length}
                           >
-                            {paperTables[key].cols[colKey].name}
+                            The paper
                           </th>
+                        )}
+                        <th>{paperTables[key].rows[rowKey].name}</th>
+                        {Object.keys(paperTables[key].cols).map(colKey => (
+                          <td key={`value${key}_${rowKey}_${colKey}`}>
+                            {paperTables[key].values[rowKey][colKey]}
+                          </td>
                         ))}
                       </tr>
-                    </thead>
-                    <tbody>
-                      {Object.keys(paperTables[key].rows).map(
-                        (rowKey, index) => (
-                          <tr key={`row${key}_${rowKey}`}>
-                            {index === 0 && (
-                              <th
-                                className="align-middle"
-                                rowSpan={
-                                  Object.keys(paperTables[key].rows).length
-                                }
-                              >
-                                The paper
-                              </th>
-                            )}
-                            <th>{paperTables[key].rows[rowKey].name}</th>
-                            {Object.keys(paperTables[key].cols).map(colKey => (
-                              <td key={`value${key}_${rowKey}_${colKey}`}>
-                                {paperTables[key].values[rowKey][colKey]}
-                              </td>
-                            ))}
-                          </tr>
-                        )
-                      )}
-                      {Object.keys(paperTables[key].rows).map(
-                        (rowKey, index) => (
-                          <tr key={`row${key}_${rowKey}`}>
-                            {index === 0 && (
-                              <th
-                                className="align-middle"
-                                rowSpan={
-                                  Object.keys(paperTables[key].rows).length
-                                }
-                              >
-                                The reproduction
-                              </th>
-                            )}
-                            <th>{paperTables[key].rows[rowKey].name}</th>
-                            {Object.keys(paperTables[key].cols).map(colKey => (
-                              <td key={`value${key}_${rowKey}_${colKey}`}>
-                                <input
-                                  type={
-                                    paperTables[key].cols[colKey].type ===
-                                    'numeric'
-                                      ? 'number'
-                                      : 'text'
-                                  }
-                                  step="any"
-                                  className="form-control form-control-sm"
-                                  style={{ minWidth: '75px' }}
-                                  name="value"
-                                  onChange={event =>
-                                    handleValueChange(
-                                      key,
-                                      rowKey,
-                                      colKey,
-                                      event
-                                    )
-                                  }
-                                  value={get(
-                                    tables,
-                                    [key, 'values', rowKey, colKey],
-                                    ''
-                                  )}
-                                />
-                              </td>
-                            ))}
-                          </tr>
-                        )
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </Fragment>
-            ))}
+                    ))}
+                    {Object.keys(paperTables[key].rows).map((rowKey, index) => (
+                      <tr key={`row${key}_${rowKey}`}>
+                        {index === 0 && (
+                          <th
+                            className="align-middle"
+                            rowSpan={Object.keys(paperTables[key].rows).length}
+                          >
+                            The reproduction
+                          </th>
+                        )}
+                        <th>{paperTables[key].rows[rowKey].name}</th>
+                        {Object.keys(paperTables[key].cols).map(colKey => (
+                          <td key={`value${key}_${rowKey}_${colKey}`}>
+                            <input
+                              type={
+                                paperTables[key].cols[colKey].type === 'numeric'
+                                  ? 'number'
+                                  : 'text'
+                              }
+                              step="any"
+                              className="form-control form-control-sm"
+                              style={{ minWidth: '75px' }}
+                              name="value"
+                              onChange={event =>
+                                handleValueChange(key, rowKey, colKey, event)
+                              }
+                              value={get(
+                                tableValues,
+                                [key, rowKey, colKey],
+                                ''
+                              )}
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Fragment>
+          ))}
+        </div>
+        <div className="form-group">
+          <label htmlFor="tables">
+            New Comparison Table(s){' '}
+            <span className="text-muted">(optional)</span>
+          </label>
+          <small className="form-text text-muted mb-2">
+            If there is no existing table relating to your results, you can add
+            new tables.
+          </small>
+          {Object.keys(tables || {}).map(key => (
+            <TableEditor
+              key={key}
+              tableKey={key}
+              table={tables[key]}
+              values={tableValues[key]}
+              onTableChange={table => handleTableChange(key, table)}
+              onValueChange={(...params) => handleValueChange(key, ...params)}
+              onRemoveClick={() => removeTable(key)}
+            />
+          ))}
+          <div>
+            <button
+              type="button"
+              className="btn btn-outline-success"
+              onClick={addTable}
+            >
+              Add Table
+            </button>
           </div>
-        )}
+        </div>
         <Button loading={loading}>{reprod ? 'Save' : 'Submit'}</Button>
       </form>
     </>

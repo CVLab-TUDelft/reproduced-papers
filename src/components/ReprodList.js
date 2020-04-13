@@ -7,7 +7,7 @@ import Button from './Button';
 import StatusDropdown from './StatusDropdown';
 import { BADGES } from '../constants';
 
-function ReprodCard({ reprod, onDeleteClick, onStatusChange }) {
+function ReprodCard({ reprod, index, onDeleteClick, onStatusChange }) {
   const firebase = useFirebase();
   const userId = get('uid', firebase.authUser);
   const userRole = get('profile.role', firebase.authUser);
@@ -15,6 +15,7 @@ function ReprodCard({ reprod, onDeleteClick, onStatusChange }) {
   return (
     <div id={reprod.id} className="card mb-3">
       <div className="card-body">
+        <h3 className="card-title text-secondary">#{index + 1}</h3>
         <div className="mb-1">
           {data.badges &&
             data.badges.map(key => (
@@ -91,10 +92,11 @@ function ReprodCard({ reprod, onDeleteClick, onStatusChange }) {
 }
 
 function ReprodList({ byId, ids, onDeleteClick, onStatusChange }) {
-  return ids.map(id => (
+  return ids.map((id, index) => (
     <ReprodCard
       key={id}
       reprod={byId[id].doc}
+      index={index}
       onDeleteClick={() => onDeleteClick(id)}
       onStatusChange={status => onStatusChange(id, status)}
     />

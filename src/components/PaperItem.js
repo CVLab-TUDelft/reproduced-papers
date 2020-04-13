@@ -83,7 +83,13 @@ function PaperItem({ paper }) {
     } catch (error) {}
   }
 
-  const tables = data.tables || {};
+  const tables = reprods
+    ? reprods.ids.reduce(
+        (prev, curr) => ({ ...prev, ...reprods.byId[curr].tables }),
+        {}
+      )
+    : {};
+
   const tableKeys = Object.keys(tables);
   const bests = findBests(paper, reprods);
   return (
@@ -143,39 +149,43 @@ function PaperItem({ paper }) {
                   ))}
                   {reprods &&
                     reprods.ids.map((reprodId, reprodIndex) =>
-                      Object.keys(tables[key].rows).map((rowKey, index) => (
-                        <tr key={`row${key}_${rowKey}`}>
-                          {index === 0 && (
-                            <th
-                              className="align-middle"
-                              rowSpan={Object.keys(tables[key].rows).length}
-                            >
-                              <a
-                                href={`#${reprods.byId[reprodId].id}`}
-                              >{`Reproduction #${reprodIndex + 1}`}</a>
-                            </th>
-                          )}
-                          <th>{tables[key].rows[rowKey].name}</th>
-                          {Object.keys(tables[key].cols).map(colKey => (
-                            <td
-                              key={`value${key}_${rowKey}_${colKey}`}
-                              className={`${
-                                bests[`${key}_${rowKey}_${colKey}_${reprodId}`]
-                                  ? 'font-weight-bold'
-                                  : ''
-                              }`}
-                            >
-                              {get(reprods.byId[reprodId], [
-                                'tables',
-                                key,
-                                'values',
-                                rowKey,
-                                colKey,
-                              ]) || '-'}
-                            </td>
-                          ))}
-                        </tr>
-                      ))
+                      Object.keys(tables[key].rows).map(
+                        (rowKey, index) =>
+                          get(reprods.byId[reprodId], ['tableValues', key]) && (
+                            <tr key={`row${key}_${rowKey}`}>
+                              {index === 0 && (
+                                <th
+                                  className="align-middle"
+                                  rowSpan={Object.keys(tables[key].rows).length}
+                                >
+                                  <a
+                                    href={`#${reprods.byId[reprodId].id}`}
+                                  >{`Reproduction #${reprodIndex + 1}`}</a>
+                                </th>
+                              )}
+                              <th>{tables[key].rows[rowKey].name}</th>
+                              {Object.keys(tables[key].cols).map(colKey => (
+                                <td
+                                  key={`value${key}_${rowKey}_${colKey}`}
+                                  className={`${
+                                    bests[
+                                      `${key}_${rowKey}_${colKey}_${reprodId}`
+                                    ]
+                                      ? 'font-weight-bold'
+                                      : ''
+                                  }`}
+                                >
+                                  {get(reprods.byId[reprodId], [
+                                    'tableValues',
+                                    key,
+                                    rowKey,
+                                    colKey,
+                                  ]) || '-'}
+                                </td>
+                              ))}
+                            </tr>
+                          )
+                      )
                     )}
                 </tbody>
               </table>
