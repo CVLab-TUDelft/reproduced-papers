@@ -4,8 +4,8 @@ import { get } from 'lodash/fp';
 
 import { useFirebase } from '../hooks';
 import Button from './Button';
+import Badge from './Badge';
 import StatusDropdown from './StatusDropdown';
-import { BADGES } from '../constants';
 
 function ReprodCard({ reprod, index, onDeleteClick, onStatusChange }) {
   const firebase = useFirebase();
@@ -18,13 +18,8 @@ function ReprodCard({ reprod, index, onDeleteClick, onStatusChange }) {
         <h3 className="card-title text-secondary">#{index + 1}</h3>
         <div className="mb-1">
           {data.badges &&
-            data.badges.map(key => (
-              <span
-                key={key}
-                className={`badge badge-${BADGES[key].color} mr-2`}
-              >
-                {BADGES[key].label}
-              </span>
+            data.badges.map(badgeKey => (
+              <Badge key={badgeKey} badgeKey={badgeKey} />
             ))}
         </div>
         <h3 className="card-title">
