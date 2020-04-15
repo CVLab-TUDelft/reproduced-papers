@@ -9,8 +9,7 @@ import Button from './Button';
 import StatusDropdown from './StatusDropdown';
 import Badge from './Badge';
 
-function findBests(paper, reprods) {
-  const tables = paper.data().tables || {};
+function findBests(tables, reprods, paperId) {
   let bests = {};
   if (!reprods) {
     return bests;
@@ -27,9 +26,8 @@ function findBests(paper, reprods) {
             const val = parseFloat(
               get(reprods.byId, [
                 reprodId,
-                'tables',
+                'tableValues',
                 tableKey,
-                'values',
                 rowKey,
                 colKey,
               ])
@@ -39,7 +37,7 @@ function findBests(paper, reprods) {
               : val;
           }
           const val = parseFloat(table.values[rowKey][colKey]);
-          vals[`${tableKey}_${rowKey}_${colKey}_${paper.id}`] = isNaN(val)
+          vals[`${tableKey}_${rowKey}_${colKey}_${paperId}`] = isNaN(val)
             ? defaultVal
             : val;
         }
@@ -102,7 +100,7 @@ function PaperItem({ paper }) {
   }
 
   // find best values
-  const bests = findBests(paper, reprods);
+  const bests = findBests(tables, reprods, paper.id);
   return (
     <>
       <div className="mb-2">
