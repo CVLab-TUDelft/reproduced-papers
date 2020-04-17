@@ -1,0 +1,30 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // auth related functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // file related functions
+    function sizeLimit(sizeInMB) {
+      return request.resource.size < sizeInMB * 1024 * 1024;
+    }
+
+    function contentType(type) {
+      return request.resource.contentType.matches(type)
+    }
+
+    match /{uid}/{path=**}/{fileId} {
+      allow get, list;
+      allow create: if sizeLimit(2) && contentType('image/.*') && isSignedIn();
+      allow update: if sizeLimit(2) && contentType('image/.*') && isSelf(uid);
+      allow delete: if isSelf(uid);
+    }
+  }
+}

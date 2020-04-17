@@ -1,6 +1,7 @@
 import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import 'firebase/storage';
 import { get } from 'lodash/fp';
 
 import { firebaseConfig } from '../config';
@@ -14,6 +15,7 @@ export default class FirebaseAPI {
 
     this.auth = app.auth();
     this.db = app.firestore();
+    this.storage = app.storage();
 
     this.authUser = null;
 
@@ -233,5 +235,18 @@ export default class FirebaseAPI {
     return doc;
   };
 
-  deleteReprod = (paperId, id) => this.reprod(paperId, id).delete();
+  deleteReprod = async (paperId, id) => {
+    const reprod = await this.getPaperReprod(paperId, id);
+    const imagePath = reprod.get('imagePath');
+    if (imagePath) {
+      await this.storage
+        .ref(imagePath)
+        .delete()
+        .then(
+          () => {},
+          error => error
+        );
+    }
+    return reprod.ref.delete();
+  };
 }

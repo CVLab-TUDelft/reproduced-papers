@@ -29,7 +29,7 @@ function Reprods({ paper, onReprodsFetched }) {
   const { doStatusUpdate, doDelete } = useReprodActions();
   async function handleStatusChange(id, status) {
     try {
-      const doc = await doStatusUpdate(id, byId[id].paperId, status);
+      const doc = await doStatusUpdate(id, paper.id, status);
       dispatch({ type: 'SET', id, doc });
     } catch (error) {}
   }
@@ -37,7 +37,7 @@ function Reprods({ paper, onReprodsFetched }) {
   const [forDelete, setForDelete] = useState(null);
   async function handleDelete(id) {
     try {
-      await doDelete(id);
+      await doDelete(id, paper.id);
       setForDelete(null);
       dispatch({ type: 'DELETE', id });
     } catch (error) {}

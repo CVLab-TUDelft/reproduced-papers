@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import Button from './Button';
 import TableEditor from './TableEditor';
+import Image from './Image';
 import { useFirebase, useAlgolia } from '../hooks';
 import { BADGES } from '../constants';
 
@@ -13,6 +14,8 @@ const INITIAL_STATE = {
   title: '',
   description: '',
   authors: [],
+  imagePath: '',
+  imageUrl: '',
   urlBlog: '',
   urlCode: '',
   visibility: 'public',
@@ -29,6 +32,8 @@ function init(data) {
     authors: Array.isArray(data.authors)
       ? data.authors.join(', ')
       : data.authors,
+    imagePath: data.imagePath,
+    imageUrl: data.imageUrl,
     urlBlog: data.urlBlog,
     urlCode: data.urlCode,
     visibility: data.visibility,
@@ -75,6 +80,8 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
     title,
     description,
     authors,
+    imagePath,
+    imageUrl,
     urlBlog,
     urlCode,
     visibility,
@@ -89,6 +96,8 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
   const history = useHistory();
   const paperId = paper.id;
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
+  const [image, setImage] = useState(null);
 
   const data = paper.data();
   const paperTableKeys = Object.keys(paperTables);
@@ -125,7 +134,7 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
     });
   }
 
-  function validateValues(values, tableKey) {
+  function convertNumbers(values, tableKey) {
     const allTables = { ...tables, ...paperTables };
     const validatedValues = cloneDeep(values);
     for (const rowKey in validatedValues) {
@@ -137,6 +146,57 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
       }
     }
     return validatedValues;
+  }
+
+  function loadImage(event) {
+    const file = event.target.files[0];
+    let error;
+    if (!file.type.match(/^image\/*/)) {
+      error = 'Selected file should be an image file.';
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      error = 'Selected file size should be less than 2MB.';
+    }
+    if (error) {
+      addToast(error, {
+        appearance: 'error',
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = event => {
+      setImage(event.target.result);
+      setFile(file);
+    };
+    reader.onerror = event => {
+      addToast('Selected file could not read.', {
+        appearance: 'error',
+      });
+      reader.abort();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function uploadImage(file) {
+    const storageRef = firebase.storage.ref();
+
+    // delete old photo if exists
+    if (imagePath) {
+      const oldFileRef = storageRef.child(imagePath);
+      await oldFileRef.delete().then(
+        () => {},
+        error => error
+      );
+    }
+
+    // upload photo if exists
+    const userId = firebase.authUser.uid;
+    const filePath = `${userId}/images/reprods/${uuidv4()}`;
+    const fileRef = storageRef.child(filePath);
+    const snapshot = await fileRef.put(file);
+    const fileUrl = await snapshot.ref.getDownloadURL();
+    return { filePath, fileUrl };
   }
 
   async function handleSubmit(event) {
@@ -154,25 +214,35 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
     const validatedTables = cloneDeep(tables);
     for (const tableKey in validatedTables) {
       const table = validatedTables[tableKey];
-      table.values = validateValues(table.values, tableKey);
+      table.values = convertNumbers(table.values, tableKey);
     }
     const validatedTableValues = cloneDeep(tableValues);
     for (const tableKey in validatedTableValues) {
       const values = validatedTableValues[tableKey];
-      validatedTableValues[tableKey] = validateValues(values, tableKey);
+      validatedTableValues[tableKey] = convertNumbers(values, tableKey);
     }
-    const data = {
-      ...state,
-      tables: validatedTables,
-      tableValues: validatedTableValues,
-      authors: authors.split(',').map(s => s.trim()),
-      paperId,
-    };
     try {
       setLoading(true);
+
+      const data = {
+        ...state,
+        tables: validatedTables,
+        tableValues: validatedTableValues,
+        authors: authors.split(',').map(s => s.trim()),
+        paperId,
+      };
+
+      // first upload image
+      if (file) {
+        const { filePath, fileUrl } = await uploadImage(file);
+        data.imagePath = filePath;
+        data.imageUrl = fileUrl;
+      }
+
       let doc;
       let message;
       let snapshot;
+
       if (reprod) {
         doc = await firebase.updateReprod(paperId, reprod.id, data);
         await algolia.updateReprod(doc.id, data);
@@ -279,6 +349,36 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
           <small id="authorsHelp" className="form-text text-muted">
             Comma seperated authors of the reproduction
           </small>
+        </div>
+        <div className="form-group">
+          <label htmlFor="image">
+            Image <span className="text-muted">(optional)</span>
+          </label>
+          <div className="custom-file">
+            <input
+              type="file"
+              id="image"
+              name="image"
+              aria-describedby="imageHelp"
+              onChange={loadImage}
+              className="custom-file-input"
+            />
+            <label className="custom-file-label" htmlFor="image">
+              {file ? 'Selected' : 'Choose file'}
+            </label>
+          </div>
+          <small id="imageHelp" className="form-text text-muted">
+            An image to describe the reproduction. It should have 4/3 aspect
+            ratio at best.
+          </small>
+          <Image
+            src={image || imageUrl}
+            className="img-thumbnail mt-2"
+            style={{
+              width: '400px',
+              height: '300px',
+            }}
+          />
         </div>
         <div className="form-group">
           <label htmlFor="urlBlog">
