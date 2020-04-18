@@ -16,7 +16,7 @@ export const BADGES = {
   replicated: {
     label: 'Replicated',
     description: 'Existing code was evaluated.',
-    color: 'primary',
+    color: 'warning',
   },
   hyperparam: {
     label: 'Hyperparams check',
@@ -26,7 +26,7 @@ export const BADGES = {
   newdata: {
     label: 'New data',
     description: 'Evaluating different datasets to obtain similar results.',
-    color: 'danger',
+    color: 'light',
   },
   newalgorithm: {
     label: 'New algorithm variant',
@@ -36,7 +36,7 @@ export const BADGES = {
   newcode: {
     label: 'New code variant',
     description: 'Rewrote existing code to be more efficient/readable.',
-    color: 'warning',
+    color: 'primary',
   },
   ablation: {
     label: 'Ablation study',

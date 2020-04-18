@@ -1,10 +1,23 @@
 $enable-responsive-font-sizes: true;
 $enable-deprecation-messages: true;
 
+$theme-colors: (
+  'primary': #00a6d6,
+  'secondary': #9b9b9b,
+  'success': #a5ca1a,
+  'danger': #e21a1a,
+  'warning': #ffc400,
+  'info': #008891,
+);
+
 @import '~bootstrap/scss/bootstrap.scss';
 
 body {
   padding-top: 5rem;
+}
+
+.navbar-custom-bg {
+  background-color: map-get($theme-colors, 'primary');
 }
 
 .my-toast-container {
@@ -16,6 +29,43 @@ body {
 .my-toast {
   width: auto !important;
   max-width: 400px;
+  background-color: $gray-100 !important;
+}
+
+.my-toast-success {
+  color: map-get($theme-colors, 'success') !important;
+}
+
+.my-toast-success > div:first-child {
+  color: $gray-100 !important;
+  background-color: map-get($theme-colors, 'success') !important;
+}
+
+.my-toast-error {
+  color: map-get($theme-colors, 'danger') !important;
+}
+
+.my-toast-error > div:first-child {
+  color: $gray-100 !important;
+  background-color: map-get($theme-colors, 'danger') !important;
+}
+
+.my-toast-warning {
+  color: map-get($theme-colors, 'warning') !important;
+}
+
+.my-toast-warning > div:first-child {
+  color: $gray-100 !important;
+  background-color: map-get($theme-colors, 'warning') !important;
+}
+
+.my-toast-info {
+  color: map-get($theme-colors, 'info') !important;
+}
+
+.my-toast-info > div:first-child {
+  color: $gray-100 !important;
+  background-color: map-get($theme-colors, 'info') !important;
 }
 
 .search {

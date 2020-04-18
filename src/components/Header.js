@@ -5,6 +5,8 @@ import { useToasts } from 'react-toast-notifications';
 import { useFirebase, useSearch } from '../hooks';
 import Spinner from './Spinner';
 
+import tudelftLogo from './tudelft.png';
+
 function Header() {
   const firebase = useFirebase();
   const authUser = firebase.authUser;
@@ -47,7 +49,7 @@ function Header() {
   const loading = paperSearcher.loading || reprodSearcher.loading;
   const numHits = paperSearcher.hits.length + reprodSearcher.hits.length;
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <nav className="navbar navbar-expand-lg navbar-dark navbar-custom-bg fixed-top">
       <Link className="navbar-brand" to="/">
         Reproduced Papers
       </Link>
@@ -171,11 +173,6 @@ function Header() {
               Help
             </NavLink>
           </li>
-          <li className="nav-item">
-            <NavLink className="nav-link" to="/about">
-              About
-            </NavLink>
-          </li>
           {!authUser && (
             <li className="nav-item">
               <a
@@ -223,6 +220,21 @@ function Header() {
               </div>
             </li>
           )}
+          <li className="nav-item">
+            <NavLink className="nav-link" to="/about">
+              <img
+                src={tudelftLogo}
+                className="d-inline-block align-top"
+                alt="TU Delft"
+                style={{
+                  height: '50px',
+                  marginTop: '-13px',
+                  marginBottom: '-13px',
+                  marginLeft: '-5px',
+                }}
+              />
+            </NavLink>
+          </li>
         </ul>
       </div>
     </nav>

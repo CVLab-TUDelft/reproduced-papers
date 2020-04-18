@@ -25,7 +25,10 @@ function ToastContainer(props) {
 
 function Toast({ children, ...props }) {
   return (
-    <DefaultToast {...props} className="my-toast">
+    <DefaultToast
+      {...props}
+      className={`my-toast my-toast-${props.appearance}`}
+    >
       {children}
     </DefaultToast>
   );
