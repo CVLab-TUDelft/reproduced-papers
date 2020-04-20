@@ -104,7 +104,7 @@ function Papers({ user, isOwner }) {
                       aria-label="Add group"
                     >
                       <Link
-                        className="btn btn-success"
+                        className="btn btn-primary"
                         to={`/papers/${id}/submit-reproduction`}
                       >
                         Add Reproduction
@@ -119,7 +119,7 @@ function Papers({ user, isOwner }) {
                         (isOwner && byId[id].status !== 'published')) && (
                         <>
                           <Link
-                            className="btn btn-primary"
+                            className="btn btn-success"
                             to={`/papers/${id}/edit`}
                           >
                             Edit

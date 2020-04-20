@@ -43,7 +43,7 @@ function PaperCard({ paper, onDeleteClick, onStatusChange }) {
               {(userRole === 'admin' || data.status !== 'published') && (
                 <>
                   <Link
-                    className="btn btn-primary"
+                    className="btn btn-success"
                     to={`/papers/${paper.id}/edit`}
                   >
                     Edit

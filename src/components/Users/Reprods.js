@@ -99,7 +99,7 @@ function Reprods({ user, isOwner }) {
                     {(isAdmin || isOwner) && (
                       <>
                         <Link
-                          className="btn btn-primary"
+                          className="btn btn-success"
                           to={`/papers/${byId[id].paperId}/reproductions/${byId[id].id}/edit`}
                         >
                           Edit

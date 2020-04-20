@@ -57,7 +57,7 @@ function ReprodCard({ reprod, index, onDeleteClick, onStatusChange }) {
                   </a>
                 )}
                 <a
-                  className="btn btn-secondary"
+                  className="btn btn-success"
                   target="_blank"
                   rel="noopener noreferrer"
                   href={`https://github.com/${data.urlCode}`}
@@ -72,7 +72,7 @@ function ReprodCard({ reprod, index, onDeleteClick, onStatusChange }) {
                   aria-label="Edit group"
                 >
                   <Link
-                    className="btn btn-primary"
+                    className="btn btn-success"
                     to={`/papers/${data.paperId}/reproductions/${reprod.id}/edit`}
                   >
                     Edit

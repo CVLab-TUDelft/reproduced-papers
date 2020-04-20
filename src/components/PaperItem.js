@@ -226,7 +226,7 @@ function PaperItem({ paper }) {
           </a>
           {data.urlPDF && (
             <a
-              className="btn btn-secondary"
+              className="btn btn-success"
               target="_blank"
               rel="noopener noreferrer"
               href={data.urlPDF}
@@ -241,7 +241,7 @@ function PaperItem({ paper }) {
           aria-label="Add group"
         >
           <Link
-            className="btn btn-success"
+            className="btn btn-primary"
             to={`/papers/${paper.id}/submit-reproduction`}
           >
             Add Reproduction
@@ -252,7 +252,7 @@ function PaperItem({ paper }) {
             {(userRole === 'admin' || data.status !== 'published') && (
               <>
                 <Link
-                  className="btn btn-primary"
+                  className="btn btn-success"
                   to={`/papers/${paper.id}/edit`}
                 >
                   Edit

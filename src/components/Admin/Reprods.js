@@ -116,13 +116,13 @@ function Reprods() {
                 <td>
                   <div className="btn-group btn-group-sm" role="group">
                     <Button
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                       onClick={() => setForDetail(id)}
                     >
                       Detail
                     </Button>
                     <Link
-                      className="btn btn-primary"
+                      className="btn btn-success"
                       to={`/admin/reproductions/${byId[id].paperId}/${id}/edit`}
                     >
                       Edit
