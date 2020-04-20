@@ -73,7 +73,7 @@ function PaperList({ byId, ids, onDeleteClick, onStatusChange }) {
       key={id}
       paper={byId[id].doc}
       onDeleteClick={() => onDeleteClick(id)}
-      onStatusChange={onStatusChange}
+      onStatusChange={status => onStatusChange(id, status)}
     />
   ));
 }

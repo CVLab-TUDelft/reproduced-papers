@@ -47,7 +47,7 @@ function Papers() {
       <PaperList
         {...state}
         onDeleteClick={setForDelete}
-        onStatusClick={handleStatusChange}
+        onStatusChange={handleStatusChange}
       />
       {hasMore && (
         <div className="text-center mb-3">
