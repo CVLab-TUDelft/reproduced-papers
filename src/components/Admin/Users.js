@@ -28,7 +28,7 @@ function getFilteredIds(filter, state) {
 // otherwise useMemo
 const params = { limit: LIMIT };
 
-function Papers() {
+function Users() {
   const firebase = useFirebase();
   const { addToast } = useToasts();
   const { data, loading, hasMore, fetchMore } = useRequest(
@@ -117,4 +117,4 @@ function Papers() {
   );
 }
 
-export default Papers;
+export default Users;
