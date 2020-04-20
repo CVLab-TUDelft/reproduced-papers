@@ -5,6 +5,7 @@ import { useToasts } from 'react-toast-notifications';
 import { useFirebase, useSearch } from '../hooks';
 import Spinner from './Spinner';
 
+import logo from './logo.png';
 import tudelftLogo from './tudelft.png';
 
 function Header() {
@@ -51,7 +52,15 @@ function Header() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark navbar-custom-bg fixed-top">
       <Link className="navbar-brand" to="/">
-        Reproduced Papers
+        <img
+          src={logo}
+          alt="Reproduced Papers"
+          style={{
+            height: '40px',
+            marginTop: '-20px',
+            marginBottom: '-13px',
+          }}
+        />
       </Link>
       <button
         className="navbar-toggler"
