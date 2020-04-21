@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, Link, useHistory } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
 
@@ -43,8 +43,16 @@ function Header() {
     history.push(path);
   }
 
+  let timeoutId;
+  useEffect(() => {
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [timeoutId]);
   function handleBlur() {
-    setFocused(false);
+    timeoutId = setTimeout(() => {
+      setFocused(false);
+    }, 250);
   }
 
   const loading = paperSearcher.loading || reprodSearcher.loading;
