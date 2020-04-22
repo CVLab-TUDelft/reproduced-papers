@@ -12,6 +12,8 @@ import DeleteDialog from '../DeleteDialog';
 import Dialog from '../Dialog';
 import { LIMIT } from '../../constants';
 import StatusDropdown from '../StatusDropdown';
+import PaperDetail from './PaperDetail';
+import PaperPicker from '../PaperPicker';
 
 const filters = {
   all: 'All',
@@ -45,7 +47,7 @@ function Papers() {
   const [state, dispatch] = useCollection(data);
   const { byId } = state;
 
-  const { doStatusUpdate, doDelete } = usePaperActions();
+  const { doStatusUpdate, doDelete, doMerge } = usePaperActions();
   async function handleStatusChange(id, status) {
     try {
       const doc = await doStatusUpdate(id, status);
@@ -59,6 +61,15 @@ function Papers() {
       await doDelete(id);
       setForDelete(null);
       dispatch({ type: 'DELETE', id });
+    } catch (error) {}
+  }
+
+  const [forMerge, setForMerge] = useState(null);
+  async function handleMerge(paperId1, paperId2) {
+    try {
+      await doMerge(paperId1, paperId2);
+      setForMerge(null);
+      dispatch({ type: 'DELETE', paperId2 });
     } catch (error) {}
   }
 
@@ -121,6 +132,12 @@ function Papers() {
                     >
                       Delete
                     </Button>
+                    <Button
+                      className="btn btn-info"
+                      onClick={() => setForMerge(id)}
+                    >
+                      Merge
+                    </Button>
                     <StatusDropdown
                       status={byId[id].status}
                       onStatusChange={status => handleStatusChange(id, status)}
@@ -155,6 +172,12 @@ function Papers() {
             <PaperDetail paperId={forDetail} paper={byId[forDetail]} />
           )}
         </Dialog>
+        <PaperPicker
+          title="Choose a paper to merge with"
+          onPick={(paperId, paper) => handleMerge(paperId, forMerge)}
+          onClose={() => setForMerge(null)}
+          isOpen={!!forMerge}
+        />
       </div>
     </>
   );

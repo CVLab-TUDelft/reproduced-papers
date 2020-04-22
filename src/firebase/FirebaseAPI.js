@@ -166,6 +166,17 @@ export default class FirebaseAPI {
 
   deletePaper = id => this.paper(id).delete();
 
+  mergePapers = async (id1, id2) => {
+    const reprods = await this.getPaperReprods(id2);
+    const colRef = this.paperProds(id1);
+    for (const reprod of reprods) {
+      const reprodData = reprod.data();
+      reprodData.paperId = id1;
+      await colRef.doc(reprod.id).set(reprodData);
+      await reprod.ref.delete();
+    }
+  };
+
   reprod = (paperId, id) => this.db.doc(`papers/${paperId}/reprods/${id}`);
 
   paperProds = paperId => this.db.collection(`papers/${paperId}/reprods`);

@@ -31,5 +31,19 @@ export default function usePaperActions() {
     }
   }
 
-  return { doStatusUpdate, doDelete };
+  async function doMerge(id1, id2) {
+    try {
+      const oldReprods = firebase.getPaperReprods(id2);
+      for (const reprod of oldReprods) {
+        await algolia.updateReprod(reprod.id, { paperId: id1 });
+      }
+      await firebase.mergePapers(id1, id2);
+      addToast('The papers were merged', { appearance: 'success' });
+    } catch (error) {
+      addToast(error.message, { appearance: 'error' });
+      throw error;
+    }
+  }
+
+  return { doStatusUpdate, doDelete, doMerge };
 }
