@@ -113,15 +113,18 @@ function Header() {
                     PAPERS
                   </div>
                   {paperSearcher.hits.map(hit => (
-                    <button
+                    <a
                       className="list-group-item list-group-item-action"
                       key={hit.objectID}
-                      onClick={() =>
-                        handleSearchItemClick(`/papers/${hit.objectID}`)
-                      }
+                      role="button"
+                      onClick={event => {
+                        event.preventDefault();
+                        handleSearchItemClick(`/papers/${hit.objectID}`);
+                      }}
+                      href={`/papers/${hit.objectID}`}
                     >
                       {hit.title}
-                    </button>
+                    </a>
                   ))}
                 </>
               )}
@@ -131,17 +134,20 @@ function Header() {
                     REPRODUCTIONS
                   </div>
                   {reprodSearcher.hits.map(hit => (
-                    <button
+                    <a
                       className="list-group-item list-group-item-action"
                       key={hit.objectID}
-                      onClick={() =>
+                      role="button"
+                      onClick={event => {
+                        event.preventDefault();
                         handleSearchItemClick(
                           `/papers/${hit.paperId}#${hit.objectID}`
-                        )
-                      }
+                        );
+                      }}
+                      href={`/papers/${hit.paperId}#${hit.objectID}`}
                     >
                       {hit.title}
-                    </button>
+                    </a>
                   ))}
                 </>
               )}
