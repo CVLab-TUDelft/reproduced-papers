@@ -113,18 +113,15 @@ function PaperForm({ paper }) {
   }
 
   // settimeout may fire after unmount so prevent this situation
-  let willUnmount = useRef(false);
+  let timeoutId = useRef(null);
   useEffect(() => {
-    willUnmount.current = false;
     return () => {
-      willUnmount.current = true;
+      clearTimeout(timeoutId.current);
     };
   });
   function handleBlur() {
-    setTimeout(() => {
-      if (!willUnmount.current) {
-        setFocused(false);
-      }
+    timeoutId.current = setTimeout(() => {
+      setFocused(false);
     }, 300);
   }
 
