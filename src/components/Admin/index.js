@@ -7,6 +7,7 @@ import PaperEdit from './PaperEdit';
 import Reprods from './Reprods';
 import ReprodEdit from './ReprodEdit';
 import Users from './Users';
+import Actions from './Actions';
 
 function Admin() {
   return (
@@ -33,6 +34,11 @@ function Admin() {
             Users
           </NavLink>
         </li>
+        <li className="nav-item">
+          <NavLink className="nav-link" to="/admin/actions">
+            Actions
+          </NavLink>
+        </li>
       </ul>
       <Switch>
         <Route exact path={['/admin', '/admin/papers']}>
@@ -49,6 +55,9 @@ function Admin() {
         </Route>
         <Route exact path="/admin/users">
           <Users />
+        </Route>
+        <Route exact path="/admin/actions">
+          <Actions />
         </Route>
       </Switch>
     </>
