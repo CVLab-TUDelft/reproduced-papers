@@ -33,10 +33,9 @@ export default function useSearch(index) {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const timeoutId = useRef(null);
 
-  const willUnmount = useRef(false);
   useEffect(() => {
     return () => {
-      willUnmount.current = true;
+      clearTimeout(timeoutId.current);
     };
   }, []);
 
@@ -56,17 +55,13 @@ export default function useSearch(index) {
           algolia
             .search(index, query, params)
             .then(result => {
-              if (!willUnmount.current) {
-                dispatch({ type: 'SUCCESS', hits: result.hits });
-                resolve(true);
-              }
+              dispatch({ type: 'SUCCESS', hits: result.hits });
+              resolve(true);
             })
             .catch(error => {
-              if (!willUnmount.current) {
-                dispatch({ type: 'ERROR', error });
-                addToast(error.message, { appearance: 'error' });
-                resolve(false);
-              }
+              dispatch({ type: 'ERROR', error });
+              addToast(error.message, { appearance: 'error' });
+              resolve(false);
             });
         }, 200);
       } else {
