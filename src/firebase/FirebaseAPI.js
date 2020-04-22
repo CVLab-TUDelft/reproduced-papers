@@ -128,7 +128,7 @@ export default class FirebaseAPI {
 
   getPapers = async (params = {}) => {
     if (get('profile.role')(this.authUser) !== 'admin') {
-      const where = ['status', '==', 'published'];
+      const where = ['status', 'in', ['pending', 'published']];
       if (!params.where) {
         params.where = [where];
       } else {
@@ -175,7 +175,7 @@ export default class FirebaseAPI {
   getPaperReprods = async (paperId, params = {}) => {
     if (get('profile.role')(this.authUser) !== 'admin') {
       const where = [
-        ['status', '==', 'published'],
+        ['status', 'in', ['pending', 'published']],
         ['visibility', '==', 'public'],
       ];
       if (!params.where) {
@@ -196,7 +196,7 @@ export default class FirebaseAPI {
   getReprods = async (params = {}) => {
     if (!this.authUser || this.authUser.profile.role !== 'admin') {
       const where = [
-        ['status', '==', 'published'],
+        ['status', 'in', ['pending', 'published']],
         ['visibility', '==', 'public'],
       ];
       if (!params.where) {

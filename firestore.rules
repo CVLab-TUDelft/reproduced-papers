@@ -23,6 +23,10 @@ service cloud.firestore {
       return resource.data.status == 'published';
     }
 
+    function isRejected() {
+      return resource.data.status == 'rejected';
+    }
+
     function getUserData() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
@@ -170,14 +174,14 @@ service cloud.firestore {
     }
 
     match /papers/{paperId} {
-      allow get, list: if isAdmin() || isOwnDocument() || isPublished();
+      allow get, list: if isAdmin() || isOwnDocument() || !isRejected();
       allow create: if isAdmin() || (isCreatedBySelf() && paperCreateCheck());
       allow update: if isAdmin() || (isUpdatedBySelf() && !isPublished() && paperUpdateCheck());
       allow delete: if isAdmin() || (isOwnDocument() && !isPublished());
     }
 
     match /{path=**}/reprods/{reprodId} {
-      allow get, list: if isAdmin() || isOwnDocument() || isPublished();
+      allow get, list: if isAdmin() || isOwnDocument() || !isRejected();
       allow create: if isAdmin() || (isCreatedBySelf() && reprodCreateCheck());
       allow update: if isAdmin() || (isUpdatedBySelf() && reprodUpdateCheck());
       allow delete: if isAdmin() || isOwnDocument();

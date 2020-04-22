@@ -47,7 +47,7 @@ export default function useSearch(index) {
         timeoutId.current = setTimeout(() => {
           const params = {};
           if (!authUser || authUser.profile.role !== 'admin') {
-            params.filters = 'status:published';
+            params.filters = '(status:pending OR status:published)';
             if (index === 'reprods') {
               params.filters += ' AND visibility:public';
             }
