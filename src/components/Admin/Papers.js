@@ -152,64 +152,7 @@ function Papers() {
           size="xl"
         >
           {forDetail && (
-            <dl>
-              <dt>Paper ID</dt>
-              <dd>
-                <Link to={`/papers/${forDetail}`}>{forDetail}</Link>
-              </dd>
-              <dt>Abstract</dt>
-              <dd>{byId[forDetail].abstract}</dd>
-              <dt>Author(s)</dt>
-              <dd>{byId[forDetail].authors.join(', ')}</dd>
-              {byId[forDetail].urlAbstract && (
-                <>
-                  <dt>URL to abstract</dt>
-                  <dd>
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      href={byId[forDetail].urlAbstract}
-                    >
-                      {byId[forDetail].urlAbstract}
-                    </a>
-                  </dd>
-                </>
-              )}
-              {byId[forDetail].urlPDF && (
-                <>
-                  <dt>URL to PDF</dt>
-                  <dd>
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      href={byId[forDetail].urlPDF}
-                    >
-                      {byId[forDetail].urlPDF}
-                    </a>
-                  </dd>
-                </>
-              )}
-              <dt>Submitted by</dt>
-              <dd>
-                <Link to={`/users/${byId[forDetail].createdBy}`}>
-                  {byId[forDetail].createdBy}
-                </Link>
-              </dd>
-              <dt>Submitted at</dt>
-              <dd>{byId[forDetail].createdAt.toDate().toString()}</dd>
-              {byId[forDetail].updatedBy && (
-                <>
-                  <dt>Updated by</dt>
-                  <dd>
-                    <Link to={`/users/${byId[forDetail].updatedBy}`}>
-                      {byId[forDetail].updatedBy}
-                    </Link>
-                  </dd>
-                  <dt>Updated at</dt>
-                  <dd>{byId[forDetail].updatedAt.toDate().toString()}</dd>
-                </>
-              )}
-            </dl>
+            <PaperDetail paperId={forDetail} paper={byId[forDetail]} />
           )}
         </Dialog>
       </div>
