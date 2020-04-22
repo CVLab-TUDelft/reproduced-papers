@@ -234,6 +234,16 @@ function PaperItem({ paper }) {
               PDF
             </a>
           )}
+          {data.urlCode && (
+            <a
+              className="btn btn-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={data.urlCode}
+            >
+              Code
+            </a>
+          )}
         </div>
         <div
           className="btn-group mr-2 mb-2"

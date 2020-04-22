@@ -12,6 +12,7 @@ const INITIAL_STATE = {
   authors: [],
   urlAbstract: '',
   urlPDF: '',
+  urlCode: '',
   status: 'pending',
 };
 
@@ -24,6 +25,7 @@ function init(data) {
       : data.authors,
     urlAbstract: data.urlAbstract,
     urlPDF: data.urlPDF,
+    urlCode: data.urlCode || '',
     status: 'pending',
   };
 }
@@ -43,7 +45,7 @@ function PaperForm({ paper }) {
     paper ? { ...INITIAL_STATE, ...paper.data() } : INITIAL_STATE,
     init
   );
-  const { title, abstract, authors, urlAbstract, urlPDF } = state;
+  const { title, abstract, authors, urlAbstract, urlPDF, urlCode } = state;
 
   const firebase = useFirebase();
   const algolia = useAlgolia();
@@ -246,7 +248,21 @@ function PaperForm({ paper }) {
             value={urlPDF}
           />
         </div>
-
+        <div className="form-group">
+          <label htmlFor="urlCode">
+            Original implementation{' '}
+            <span className="text-muted">(optional)</span>
+          </label>
+          <input
+            type="url"
+            className="form-control"
+            id="urlCode"
+            name="urlCode"
+            value={urlCode}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <Button loading={loading}>{paper ? 'Save' : 'Submit'}</Button>
       </form>
     </>
