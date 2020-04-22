@@ -1,15 +1,35 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useToasts } from 'react-toast-notifications';
 
 import { useSearch } from '../hooks';
 import Spinner from './Spinner';
 import Dialog from './Dialog';
 
-function PaperPicker({ title, onPick, isOpen, onClose }) {
+function PaperPicker({ title, action = 'Select', onSelect, isOpen, onClose }) {
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState(null);
   const [focused, setFocused] = useState(false);
   const searcher = useSearch('papers');
+  const { addToast } = useToasts();
 
-  function showPapers(event) {
-    searcher.search(event.target.value);
+  useEffect(() => {
+    setSelected(null);
+    setQuery('');
+  }, [isOpen]);
+
+  function handleChange(event) {
+    setSelected(null);
+    const value = event.target.value;
+    setQuery(value);
+    searcher.search(value);
+  }
+
+  function handleSelect() {
+    if (!selected) {
+      addToast('Select a paper first', { appearance: 'warning' });
+      return;
+    }
+    onSelect(selected.paperId, selected.paper);
   }
 
   let timeoutId = useRef(null);
@@ -17,7 +37,7 @@ function PaperPicker({ title, onPick, isOpen, onClose }) {
     return () => {
       clearTimeout(timeoutId.current);
     };
-  });
+  }, []);
 
   function handleBlur() {
     timeoutId.current = setTimeout(() => {
@@ -25,15 +45,25 @@ function PaperPicker({ title, onPick, isOpen, onClose }) {
     }, 300);
   }
 
+  const buttons = [
+    <button key="close" className="btn btn-secondary" onClick={onClose}>
+      Close
+    </button>,
+    <button key="action" className="btn btn-primary" onClick={handleSelect}>
+      {action}
+    </button>,
+  ];
+
   return (
-    <Dialog isOpen={isOpen} onToggle={onClose} title={title}>
+    <Dialog isOpen={isOpen} onToggle={onClose} title={title} buttons={buttons}>
       <div className="form-group position-relative">
         <input
           type="text"
           className="form-control"
-          id="title"
-          name="title"
-          onChange={showPapers}
+          id="query"
+          name="query"
+          value={query}
+          onChange={handleChange}
           onBlur={handleBlur}
           onFocus={() => setFocused(true)}
           autoComplete="off"
@@ -55,7 +85,8 @@ function PaperPicker({ title, onPick, isOpen, onClose }) {
                     className="list-group-item list-group-item-action"
                     onClick={event => {
                       event.preventDefault();
-                      onPick(hit.objectID, hit);
+                      setQuery(hit.title);
+                      setSelected({ paperId: hit.objectID, paper: hit });
                     }}
                     href={`#${hit.objectID}`}
                   >

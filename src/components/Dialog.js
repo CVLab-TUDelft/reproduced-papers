@@ -4,7 +4,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 export default function Dialog({
   title,
   children,
-  buttons,
+  buttons = null,
   isOpen,
   onToggle,
   size,

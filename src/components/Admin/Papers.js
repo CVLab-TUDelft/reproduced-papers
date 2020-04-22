@@ -174,7 +174,8 @@ function Papers() {
         </Dialog>
         <PaperPicker
           title="Choose a paper to merge with"
-          onPick={(paperId, paper) => handleMerge(paperId, forMerge)}
+          action="Merge"
+          onSelect={paperId => handleMerge(paperId, forMerge)}
           onClose={() => setForMerge(null)}
           isOpen={!!forMerge}
         />
