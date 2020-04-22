@@ -257,7 +257,6 @@ function PaperForm({ paper }) {
             name="urlCode"
             value={urlCode}
             onChange={handleChange}
-            required
           />
         </div>
         <Button loading={loading}>{paper ? 'Save' : 'Submit'}</Button>
