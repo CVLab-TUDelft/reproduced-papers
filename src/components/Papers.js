@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import {
   useFirebase,
@@ -43,7 +44,16 @@ function Papers() {
 
   return (
     <>
-      <h1>Papers</h1>
+      <div className="row">
+        <div className="col">
+          <h1>Papers</h1>
+        </div>
+        <div className="col-auto">
+          <Link className="btn btn-primary" to="/submit-paper">
+            Submit Paper
+          </Link>
+        </div>
+      </div>
       <PaperList
         {...state}
         onDeleteClick={setForDelete}

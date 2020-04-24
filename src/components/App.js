@@ -6,6 +6,7 @@ import { useAuthentication } from '../hooks';
 import Header from './Header';
 import Footer from './Footer';
 import Spinner from './Spinner';
+import Home from './Home';
 import SubmitPaper from './SubmitPaper';
 import Papers from './Papers';
 import Paper from './Paper';
@@ -27,7 +28,10 @@ function App() {
       <Header />
       <main role="main" className="container">
         <Switch>
-          <Route exact path={['/', '/papers']}>
+          <Route exact path="/">
+            <Home />
+          </Route>
+          <Route exact path="/papers">
             <Papers />
           </Route>
           <Route exact path="/submit-paper">

@@ -43,9 +43,11 @@ function Reprods({ paper, onReprodsFetched }) {
     } catch (error) {}
   }
 
-  return loading ? (
-    <Spinner />
-  ) : (
+  if (loading) {
+    return <Spinner />;
+  }
+
+  return (
     ids.length > 0 && (
       <>
         <h3 className="mt-3">Reproductions</h3>
