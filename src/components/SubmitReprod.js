@@ -1,29 +1,87 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 
 import ReprodForm from './ReprodForm';
 import Spinner from './Spinner';
+import PaperPicker from './PaperPicker';
 import withAuthentication from './withAuthentication';
 import { useFirebase, useRequest } from '../hooks';
+import MoreText from './MoreText';
 
-function SubmitReprod({ paper }) {
+function SubmitReprod() {
+  const { paperId } = useParams();
+  const [selected, setSelected] = useState(paperId);
+  const [show, setShow] = useState(false);
   const firebase = useFirebase();
 
-  // fetch reproductions
-  const reprodsFetcher = useCallback(() => firebase.getPaperReprods(paper.id), [
-    paper.id,
+  // fetch paper
+  const paperFetcher = useCallback(() => firebase.getPaper(selected), [
+    selected,
     firebase,
   ]);
-  const { data: reprods, loading } = useRequest(reprodsFetcher);
+  const { data: paper, loading: paperLoading } = useRequest(paperFetcher);
 
-  if (loading) {
-    return <Spinner />;
-  }
+  // fetch tables
+  const tableFetcher = useCallback(() => firebase.getPaperTables(selected), [
+    selected,
+    firebase,
+  ]);
+  const { data: tables, loading: tablesLoading } = useRequest(tableFetcher);
 
-  const tables = reprods
-    ? reprods.reduce((prev, curr) => ({ ...prev, ...curr.get('tables') }), {})
-    : {};
+  console.log(selected);
 
-  return <ReprodForm paper={paper} paperTables={tables} />;
+  console.log('test', paper);
+
+  const isPaperReady = selected && paper && paper.exists;
+
+  return (
+    <>
+      {selected && (paperLoading || tablesLoading) && <Spinner />}
+      <PaperPicker
+        title="Choose a paper to add reproduction"
+        action="Select"
+        onSelect={paperId => {
+          setShow(false);
+          setSelected(paperId);
+        }}
+        onClose={() => setShow(false)}
+        isOpen={show}
+      />
+      {paperId ? (
+        <ReprodForm paper={paper} paperTables={tables} />
+      ) : (
+        <>
+          <h1>Select Paper</h1>
+          <p>Select a paper first to add reproduction</p>
+          <div className="card">
+            <div className="card-body">
+              {isPaperReady && (
+                <>
+                  <h3 className="card-title">{paper.get('title')}</h3>
+                  <MoreText
+                    className="card-text"
+                    text={paper.get('abstract')}
+                  />
+                </>
+              )}
+              <button className="btn btn-primary" onClick={() => setShow(true)}>
+                {isPaperReady ? 'Reselect' : 'Select'}
+              </button>{' '}
+              {isPaperReady && (
+                <Link
+                  className="btn btn-success"
+                  disabled={!isPaperReady}
+                  to={`submit-reproduction/${selected}`}
+                >
+                  Next
+                </Link>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
 }
 
 export default withAuthentication(SubmitReprod);

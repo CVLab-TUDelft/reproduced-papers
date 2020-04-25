@@ -99,7 +99,7 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
   const [file, setFile] = useState(null);
   const [image, setImage] = useState(null);
 
-  const data = paper.data();
+  const paperData = paper.data();
   const paperTableKeys = Object.keys(paperTables);
 
   function handleChange(event) {
@@ -224,7 +224,7 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
     try {
       setLoading(true);
 
-      const data = {
+      const reprodData = {
         ...state,
         tables: validatedTables,
         tableValues: validatedTableValues,
@@ -235,8 +235,8 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
       // first upload image
       if (file) {
         const { filePath, fileUrl } = await uploadImage(file);
-        data.imagePath = filePath;
-        data.imageUrl = fileUrl;
+        reprodData.imagePath = filePath;
+        reprodData.imageUrl = fileUrl;
       }
 
       let doc;
@@ -244,11 +244,11 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
       let snapshot;
 
       if (reprod) {
-        doc = await firebase.updateReprod(paperId, reprod.id, data);
-        await algolia.updateReprod(doc.id, data);
+        doc = await firebase.updateReprod(paperId, reprod.id, reprodData);
+        await algolia.updateReprod(doc.id, reprodData);
         message = 'Reproduction has been updated';
       } else {
-        doc = await firebase.addReprod(paperId, data);
+        doc = await firebase.addReprod(paperId, reprodData);
         snapshot = await doc.get();
         await algolia.saveReprod(doc.id, snapshot.data());
         message = 'Reproduction has been submitted';
@@ -307,7 +307,7 @@ function ReprodForm({ paper, paperTables = {}, reprod }) {
     <>
       <h1>{reprod ? 'Edit Reproduction' : 'Submit Reproduction'}</h1>
       <h4>
-        for <Link to={`/papers/${paperId}`}>{data.title}</Link>
+        for <Link to={`/papers/${paperId}`}>{paperData.title}</Link>
       </h4>
       <form onSubmit={handleSubmit}>
         <div className="form-group">

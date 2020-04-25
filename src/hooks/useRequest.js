@@ -56,7 +56,12 @@ export default function useRequest(fetcher, params) {
   // keep mount state
   const willUnmount = useRef(false);
   useEffect(() => {
-    willUnmount.current = false;
+    return () => {
+      willUnmount.current = true;
+    };
+  }, []);
+
+  useEffect(() => {
     dispatch({ type: 'REQUEST' });
     fetcher({ ...params })
       .then(data => {
@@ -70,9 +75,6 @@ export default function useRequest(fetcher, params) {
           onError && onError(error);
         }
       });
-    return () => {
-      willUnmount.current = true;
-    };
   }, [fetcher, onError, params]);
 
   function fetchMore() {

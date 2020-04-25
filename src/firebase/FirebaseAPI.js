@@ -168,7 +168,7 @@ export default class FirebaseAPI {
 
   mergePapers = async (id1, id2) => {
     const reprods = await this.getPaperReprods(id2);
-    const colRef = this.paperProds(id1);
+    const colRef = this.paperReprods(id1);
     for (const reprod of reprods) {
       const reprodData = reprod.data();
       reprodData.paperId = id1;
@@ -177,9 +177,17 @@ export default class FirebaseAPI {
     }
   };
 
+  getPaperTables = async paperId => {
+    const reprods = await this.getPaperReprods(paperId);
+    return reprods.reduce(
+      (prev, curr) => ({ ...prev, ...curr.get('tables') }),
+      {}
+    );
+  };
+
   reprod = (paperId, id) => this.db.doc(`papers/${paperId}/reprods/${id}`);
 
-  paperProds = paperId => this.db.collection(`papers/${paperId}/reprods`);
+  paperReprods = paperId => this.db.collection(`papers/${paperId}/reprods`);
 
   getPaperReprod = (paperId, id) => this.reprod(paperId, id).get();
 
@@ -198,7 +206,7 @@ export default class FirebaseAPI {
     if (!params.orderBy) {
       params.orderBy = ['createdAt', 'desc'];
     }
-    const q = this.paperProds(paperId);
+    const q = this.paperReprods(paperId);
     return this.query(q, params);
   };
 
@@ -238,7 +246,7 @@ export default class FirebaseAPI {
   };
 
   addReprod = (paperId, data) =>
-    this.paperProds(paperId).add(this.creating(data));
+    this.paperReprods(paperId).add(this.creating(data));
 
   updateReprod = async (paperId, id, data) => {
     const doc = this.reprod(paperId, id);

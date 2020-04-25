@@ -10,6 +10,7 @@ import Home from './Home';
 import SubmitPaper from './SubmitPaper';
 import Papers from './Papers';
 import Paper from './Paper';
+import SubmitReprod from './SubmitReprod';
 import Admin from './Admin';
 import Users from './Users';
 import SignOut from './SignOut';
@@ -39,6 +40,9 @@ function App() {
           </Route>
           <Route path="/papers/:paperId">
             <Paper />
+          </Route>
+          <Route path="/submit-reproduction/:paperId?">
+            <SubmitReprod />
           </Route>
           <Route path="/admin">
             <Admin />

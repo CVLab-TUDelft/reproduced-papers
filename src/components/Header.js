@@ -182,6 +182,11 @@ function Header() {
             </li>
           )}
           <li className="nav-item">
+            <NavLink className="nav-link" to="/">
+              Reproductions
+            </NavLink>
+          </li>
+          <li className="nav-item">
             <NavLink className="nav-link" to="/papers">
               Papers
             </NavLink>

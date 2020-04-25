@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import {
   useFirebase,
@@ -46,7 +47,15 @@ function Home() {
   return (
     ids.length > 0 && (
       <>
-        <h1>Reproductions</h1>
+        <h1>
+          <Link
+            className="btn btn-primary float-right"
+            to="/submit-reproduction"
+          >
+            Submit Reproduction
+          </Link>
+          <span>Reproductions</span>
+        </h1>
         {ids.map((id, index) => (
           <ReprodCard
             key={id}

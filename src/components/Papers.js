@@ -44,16 +44,12 @@ function Papers() {
 
   return (
     <>
-      <div className="row">
-        <div className="col">
-          <h1>Papers</h1>
-        </div>
-        <div className="col-auto">
-          <Link className="btn btn-primary" to="/submit-paper">
-            Submit Paper
-          </Link>
-        </div>
-      </div>
+      <h1>
+        <Link className="btn btn-primary float-right" to="/submit-paper">
+          Submit Paper
+        </Link>
+        <span>Papers</span>
+      </h1>
       <PaperList
         {...state}
         onDeleteClick={setForDelete}

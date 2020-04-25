@@ -17,14 +17,14 @@ function Reprod({ paper }) {
   );
   const { data: reprod, loading: reprodLoading } = useRequest(reprodFetcher);
 
-  // fetch reproductions
-  const reprodsFetcher = useCallback(() => firebase.getPaperReprods(paper.id), [
-    paper.id,
+  // fetch tables
+  const tableFetcher = useCallback(() => firebase.getPaperTables(paperId), [
+    paperId,
     firebase,
   ]);
-  const { data: reprods, loading: reprodsLoading } = useRequest(reprodsFetcher);
+  const { data: tables, loading: tablesLoading } = useRequest(tableFetcher);
 
-  if (reprodLoading || reprodsLoading) {
+  if (reprodLoading || tablesLoading) {
     return <Spinner />;
   }
 
@@ -35,10 +35,6 @@ function Reprod({ paper }) {
       </ErrorAlert>
     );
   }
-
-  const tables = reprods
-    ? reprods.reduce((prev, curr) => ({ ...prev, ...curr.tables }), {})
-    : {};
 
   return (
     <Switch>
