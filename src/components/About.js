@@ -15,7 +15,7 @@ function About() {
   return (
     <>
       <div className="my-3">
-        <h1>Our misssion</h1>
+        <h1>Our mission</h1>
         <p className="lead">
           We believe in the importance of open and reproducible science.
           Therefore, we are aiming to create a hub for sharing all reproduced
