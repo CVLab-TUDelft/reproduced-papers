@@ -105,7 +105,7 @@ function Papers({ user, isOwner }) {
                     >
                       <Link
                         className="btn btn-primary"
-                        to={`/papers/${id}/submit-reproduction`}
+                        to={`/submit-reproduction/${id}`}
                       >
                         Add Reproduction
                       </Link>

@@ -252,7 +252,7 @@ function PaperItem({ paper }) {
         >
           <Link
             className="btn btn-primary"
-            to={`/papers/${paper.id}/submit-reproduction`}
+            to={`/submit-reproduction/${paper.id}`}
           >
             Add Reproduction
           </Link>
