@@ -73,6 +73,9 @@ function ReprodCard({ reprod, index = null, onDeleteClick, onStatusChange }) {
                 >
                   Code
                 </a>
+                <Link className="btn btn-info" to={`/papers/${data.paperId}`}>
+                  Paper
+                </Link>
               </div>
               {(userRole === 'admin' || userId === data.createdBy) && (
                 <div
