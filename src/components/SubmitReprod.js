@@ -28,15 +28,10 @@ function SubmitReprod() {
   ]);
   const { data: tables, loading: tablesLoading } = useRequest(tableFetcher);
 
-  console.log(selected);
-
-  console.log('test', paper);
-
   const isPaperReady = selected && paper && paper.exists;
 
   return (
     <>
-      {selected && (paperLoading || tablesLoading) && <Spinner />}
       <PaperPicker
         title="Choose a paper to add reproduction"
         action="Select"
@@ -47,9 +42,11 @@ function SubmitReprod() {
         onClose={() => setShow(false)}
         isOpen={show}
       />
-      {paperId ? (
+      {selected && (paperLoading || tablesLoading) && <Spinner />}
+      {paperId && !(paperLoading || tablesLoading) && isPaperReady && (
         <ReprodForm paper={paper} paperTables={tables} />
-      ) : (
+      )}
+      {!paperId && (
         <>
           <h1>Select Paper</h1>
           <p>Select a paper first to add reproduction</p>
