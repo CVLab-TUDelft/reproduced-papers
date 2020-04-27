@@ -24,6 +24,65 @@ function About() {
         </p>
       </div>
       <div className="my-3">
+        <h1>Other resources</h1>
+        <ol>
+          <li>
+            <a
+              href="https://paperswithcode.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Papers With Code
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://cknowledge.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Collective Knowledge
+            </a>
+          </li>
+          <li>
+            <a
+              href="http://rescience.github.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ReScience C
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://ai.facebook.com/blog/how-the-ai-community-can-get-serious-about-reproducibility/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              The Machine Learning Reproducibility Checklist
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://sites.google.com/view/icml-reproducibility-workshop/home"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Reproducibility in Machine Learning: An ICLR 2019 Workshop
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://sotabench.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              sotabench
+            </a>
+          </li>
+        </ol>
+      </div>
+      <div className="my-3">
         <h1>Contributing</h1>
         <p className="lead">There are two ways of contributing:</p>
         <ol>
