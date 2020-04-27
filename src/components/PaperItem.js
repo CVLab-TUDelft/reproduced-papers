@@ -1,5 +1,5 @@
-import React, { useState, Fragment } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import React, { useState, useEffect, Fragment } from 'react';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { get } from 'lodash';
 
 import { useFirebase, usePaperActions } from '../hooks';
@@ -61,8 +61,20 @@ function PaperItem({ paper }) {
   const [data, setData] = useState(paper.data());
   const [reprods, setReprods] = useState(null);
   const firebase = useFirebase();
+  const history = useHistory();
   const userId = get(firebase.authUser, 'uid');
   const userRole = get(firebase.authUser, 'profile.role');
+
+  // go to hash for reprod links
+  const location = useLocation();
+  useEffect(() => {
+    if (location.hash && reprods) {
+      const elem = document.querySelector(location.hash);
+      if (elem) {
+        elem.scrollIntoView();
+      }
+    }
+  }, [history, location.hash, reprods]);
 
   const { doStatusUpdate, doDelete } = usePaperActions();
   async function handleStatusChange(status) {
@@ -72,7 +84,6 @@ function PaperItem({ paper }) {
     } catch (error) {}
   }
 
-  const history = useHistory();
   const [open, setOpen] = useState(false);
   async function handleDelete() {
     try {

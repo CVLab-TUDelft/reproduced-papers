@@ -12,6 +12,7 @@ import DeleteDialog from '../DeleteDialog';
 import Dialog from '../Dialog';
 import { LIMIT, BADGES } from '../../constants';
 import StatusDropdown from '../StatusDropdown';
+import { getReprodUrl } from '../../helpers';
 
 const filters = {
   all: 'All',
@@ -98,7 +99,7 @@ function Reprods() {
             {filteredIds.map(id => (
               <tr key={id}>
                 <td>
-                  <Link to={`/papers/${byId[id].paperId}#${id}`}>{id}</Link>
+                  <Link to={getReprodUrl(byId[id].paperId, id)}>{id}</Link>
                 </td>
                 <td>{byId[id].title}</td>
                 <td>{byId[id].authors.join(', ')}</td>
@@ -167,7 +168,7 @@ function Reprods() {
             <dl>
               <dt>Reprod ID</dt>
               <dd>
-                <Link to={`/papers/${byId[forDetail].paperId}#${forDetail}`}>
+                <Link to={getReprodUrl(byId[forDetail].paperId, forDetail)}>
                   {forDetail}
                 </Link>
               </dd>

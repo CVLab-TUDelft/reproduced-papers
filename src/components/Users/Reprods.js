@@ -11,6 +11,7 @@ import Button from '../Button';
 import DeleteDialog from '../DeleteDialog';
 import { LIMIT, STATUSES, BADGES } from '../../constants';
 import StatusDropdown from '../StatusDropdown';
+import { getReprodUrl } from '../../helpers';
 
 // params should be outside of the component
 // otherwise useMemo
@@ -72,7 +73,7 @@ function Reprods({ user, isOwner }) {
                 className={`${id === reprodId ? 'table-primary ' : ''}`}
               >
                 <td>
-                  <Link to={`/papers/${byId[id].paperId}#${id}`}>{id}</Link>
+                  <Link to={getReprodUrl(byId[id].paperId, id)}>{id}</Link>
                 </td>
                 <td>{byId[id].title}</td>
                 <td>{byId[id].authors.join(', ')}</td>

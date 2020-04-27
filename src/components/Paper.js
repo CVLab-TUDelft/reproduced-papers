@@ -5,7 +5,6 @@ import { useFirebase, useRequest } from '../hooks';
 import Spinner from './Spinner';
 import PaperItem from './PaperItem';
 import PaperForm from './PaperForm';
-import SubmitReprod from './SubmitReprod';
 import Reprod from './Reprod';
 import ErrorAlert from './ErrorAlert';
 
@@ -39,9 +38,6 @@ function Paper() {
       </Route>
       <Route exact path="/papers/:paperId/edit">
         <PaperForm paper={paper} />
-      </Route>
-      <Route exact path="/papers/:paperId/submit-reproduction">
-        <SubmitReprod paper={paper} />
       </Route>
       <Route path="/papers/:paperId/reproductions/:reprodId">
         <Reprod paper={paper} />

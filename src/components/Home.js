@@ -62,6 +62,7 @@ function Home() {
             reprod={byId[id].doc}
             onDeleteClick={() => setForDelete(id)}
             onStatusChange={status => handleStatusChange(id, status)}
+            forHome={true}
           />
         ))}
         {hasMore && (

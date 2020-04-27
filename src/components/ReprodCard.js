@@ -1,21 +1,34 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { get } from 'lodash/fp';
 
 import { useFirebase } from '../hooks';
+import { getReprodUrl } from '../helpers';
 import Button from './Button';
 import Badge from './Badge';
 import StatusDropdown from './StatusDropdown';
 import Image from './Image';
 import MoreText from './MoreText';
 
-function ReprodCard({ reprod, index = null, onDeleteClick, onStatusChange }) {
+function ReprodCard({
+  reprod,
+  index = null,
+  onDeleteClick,
+  onStatusChange,
+  forHome = false,
+}) {
   const firebase = useFirebase();
   const userId = get('uid', firebase.authUser);
   const userRole = get('profile.role', firebase.authUser);
+  const location = useLocation();
   const data = reprod.data();
   return (
-    <div id={reprod.id} className="card mb-3">
+    <div
+      id={`r${reprod.id}`}
+      className={`card mb-3 ${
+        location.hash === `#r${reprod.id}` ? 'bg-light' : ''
+      }`}
+    >
       <div className="row no-gutters">
         {data.imageUrl && (
           <div className="col-md-4">
@@ -55,27 +68,35 @@ function ReprodCard({ reprod, index = null, onDeleteClick, onStatusChange }) {
                 role="group"
                 aria-label="View group"
               >
-                {data.urlBlog && (
-                  <a
+                {forHome ? (
+                  <Link
                     className="btn btn-primary"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={data.urlBlog}
+                    to={getReprodUrl(data.paperId, reprod.id)}
                   >
                     Detail
-                  </a>
+                  </Link>
+                ) : (
+                  <>
+                    {data.urlBlog && (
+                      <a
+                        className="btn btn-primary"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={data.urlBlog}
+                      >
+                        Detail
+                      </a>
+                    )}
+                    <a
+                      className="btn btn-success"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={`https://github.com/${data.urlCode}`}
+                    >
+                      Code
+                    </a>
+                  </>
                 )}
-                <a
-                  className="btn btn-success"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={`https://github.com/${data.urlCode}`}
-                >
-                  Code
-                </a>
-                <Link className="btn btn-info" to={`/papers/${data.paperId}`}>
-                  Paper
-                </Link>
               </div>
               {(userRole === 'admin' || userId === data.createdBy) && (
                 <div
