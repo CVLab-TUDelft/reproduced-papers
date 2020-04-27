@@ -14,10 +14,10 @@ function Reprods({ paper, onReprodsFetched }) {
   const firebase = useFirebase();
 
   // fetch reproductions
-  const reprodsFetcher = useCallback(() => firebase.getPaperReprods(paper.id), [
-    paper.id,
-    firebase,
-  ]);
+  const reprodsFetcher = useCallback(
+    () => firebase.getPaperReprods(paper.id, { orderBy: ['createdAt', 'asc'] }),
+    [paper.id, firebase]
+  );
   const { data, loading } = useRequest(reprodsFetcher);
   const [state, dispatch] = useCollection(data);
   const { byId, ids } = state;
