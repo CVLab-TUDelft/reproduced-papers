@@ -3,6 +3,7 @@ import { NavLink, Link, useHistory } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
 
 import { useFirebase, useSearch } from '../hooks';
+import { getReprodUrl } from '../helpers';
 import Spinner from './Spinner';
 
 import logo from './logo.png';
@@ -34,6 +35,10 @@ function Header() {
 
   async function handleSearchSubmit(event) {
     event.preventDefault();
+    paperSearcher.search('');
+    reprodSearcher.search('');
+    const query = event.target['search'].value;
+    history.push(`/search?q=${query}`);
   }
 
   const history = useHistory();
@@ -92,7 +97,7 @@ function Header() {
               type="text"
               placeholder="Search for papers and reproductions"
               aria-label="Search"
-              value={paperSearcher.query}
+              name="search"
               onChange={handleSearchChange}
               onBlur={handleBlur}
               onFocus={() => setFocused(true)}
@@ -141,10 +146,10 @@ function Header() {
                       onClick={event => {
                         event.preventDefault();
                         handleSearchItemClick(
-                          `/papers/${hit.paperId}#${hit.objectID}`
+                          getReprodUrl(hit.paperId, hit.objectID)
                         );
                       }}
-                      href={`/papers/${hit.paperId}#${hit.objectID}`}
+                      href={getReprodUrl(hit.paperId, hit.objectID)}
                     >
                       {hit.title}
                     </a>
@@ -182,7 +187,7 @@ function Header() {
             </li>
           )}
           <li className="nav-item">
-            <NavLink className="nav-link" to="/">
+            <NavLink className="nav-link" to="/" exact>
               Reproductions
             </NavLink>
           </li>

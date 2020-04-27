@@ -16,6 +16,7 @@ import Users from './Users';
 import SignOut from './SignOut';
 import Help from './Help';
 import About from './About';
+import Search from './Search';
 
 function App() {
   const loading = useAuthentication();
@@ -31,6 +32,9 @@ function App() {
         <Switch>
           <Route exact path="/">
             <Home />
+          </Route>
+          <Route path="/search">
+            <Search />
           </Route>
           <Route exact path="/papers">
             <Papers />
