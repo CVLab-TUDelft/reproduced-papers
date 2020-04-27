@@ -201,10 +201,35 @@ function Header() {
               Help
             </NavLink>
           </li>
+          <li className="nav-item">
+            <NavLink className="nav-link" to="/about">
+              About
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <a
+              className="nav-link"
+              href="https://www.tudelft.nl/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src={tudelftLogo}
+                className="d-inline-block align-top"
+                alt="TU Delft"
+                style={{
+                  height: '50px',
+                  marginTop: '-13px',
+                  marginBottom: '-13px',
+                  marginLeft: '-5px',
+                }}
+              />
+            </a>
+          </li>
           {!authUser && (
             <li className="nav-item">
               <a
-                className="nav-link"
+                className="btn btn-outline-light my-2 my-sm-0"
                 href="#signin"
                 onClick={handleSigninClick}
               >
@@ -215,7 +240,7 @@ function Header() {
           {authUser && (
             <li className="nav-item dropdown">
               <a
-                className="nav-link dropdown-toggle"
+                className="btn btn-outline-light my-2 my-sm-0 dropdown-toggle"
                 href="#account"
                 id="account-dropdown"
                 data-toggle="dropdown"
@@ -248,21 +273,6 @@ function Header() {
               </div>
             </li>
           )}
-          <li className="nav-item">
-            <NavLink className="nav-link" to="/about">
-              <img
-                src={tudelftLogo}
-                className="d-inline-block align-top"
-                alt="TU Delft"
-                style={{
-                  height: '50px',
-                  marginTop: '-13px',
-                  marginBottom: '-13px',
-                  marginLeft: '-5px',
-                }}
-              />
-            </NavLink>
-          </li>
         </ul>
       </div>
     </nav>
