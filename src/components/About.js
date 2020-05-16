@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import jquery from 'jquery';
 
 import { base64ContactEmail } from '../config';
+import { BADGES } from '../constants';
+import Badge from './Badge';
 
 function About() {
   useEffect(() => {
@@ -21,6 +23,26 @@ function About() {
           Therefore, we are aiming to create a hub for sharing all reproduced
           papers especially for machine learning field to support and encourage
           open and reproducible science.
+        </p>
+      </div>
+      <div className="my-3">
+        <h1>Badges of Reproduction</h1>
+        <p className="lead">
+          We offer a number of badges to make easy to identify the type of works
+          done during reprodution.
+          <br />
+          List of badges:
+          <ol>
+            {Object.keys(BADGES).map(badgeKey => (
+              <li key={badgeKey}>
+                <Badge badgeKey={badgeKey} />
+                <br />
+                <span className="text-muted">
+                  {BADGES[badgeKey].description}
+                </span>
+              </li>
+            ))}
+          </ol>
         </p>
       </div>
       <div className="my-3">
