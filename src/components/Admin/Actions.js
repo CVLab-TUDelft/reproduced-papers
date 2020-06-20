@@ -11,7 +11,7 @@ function Actions() {
 
   const [loading, setLoading] = useState({ paper: false, reprod: false });
 
-  async function reindexPapaers() {
+  async function reindexPapers() {
     try {
       setLoading({ ...loading, paper: true });
       await algolia.paperIndex.clearObjects();
@@ -53,7 +53,7 @@ function Actions() {
           <Button
             type="button"
             className="btn btn-primary"
-            onClick={reindexPapaers}
+            onClick={reindexPapers}
             loading={loading['paper']}
           >
             Reindex Papers
