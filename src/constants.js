@@ -9,13 +9,13 @@ export const STATUSES = {
 export const BADGES = {
   reproduced: {
     label: 'Reproduced',
-    description:
-      'A full reproduction from scratch without using any pre-existing code.',
+    description: 'Existing code was evaluated.',
     color: 'success',
   },
   replicated: {
     label: 'Replicated',
-    description: 'Existing code was evaluated.',
+    description:
+      'A full reproduction from scratch without using any pre-existing code.',
     color: 'warning',
   },
   hyperparam: {
