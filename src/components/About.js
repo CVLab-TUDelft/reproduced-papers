@@ -26,7 +26,7 @@ function About() {
         </p>
       </div>
       <div className="my-3">
-        <h1>Badges of Reproduction</h1>
+        <h1>Reproduction badges</h1>
         <p className="lead">
           We offer a number of badges to make easy to identify the type of works
           done during reprodution.
@@ -43,6 +43,23 @@ function About() {
               </li>
             ))}
           </ol>
+        </p>
+      </div>
+      <div className="my-3">
+        <h1>Survey data</h1>
+        <p className="lead">
+          We conducted two small anonymous surveys for two groups:
+          <ol type="i">
+            <li>
+              students who recently added their reproduction to our repository,
+            </li>
+            <li>anybody identifying her/himself working in AI.</li>
+          </ol>
+          Here you can download the data:{' '}
+          <a href={process.env.PUBLIC_URL + '/survey-data.zip'}>
+            survey-data.zip
+          </a>
+          .
         </p>
       </div>
       <div className="my-3">
@@ -102,18 +119,27 @@ function About() {
               sotabench
             </a>
           </li>
+          <li>
+            <a
+              href="https://paperswithcode.com/rc2020"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ML Reproducibility Challenge 2020
+            </a>
+          </li>
         </ol>
       </div>
       <div className="my-3">
         <h1>Contributing</h1>
-        <p className="lead">There are two ways of contributing:</p>
-        <ol>
-          <li>Submitting papers and reproductions,</li>
-          <li>Improving the web app.</li>
-        </ol>
         <p className="lead">
+          There are two ways of contributing:
+          <ol>
+            <li>Submitting papers and reproductions,</li>
+            <li>Improving the web app.</li>
+          </ol>
           You can find the source code of the web app at{' '}
-          <a href="https://github.com/byildiz/reproduced-papers">
+          <a href="https://github.com/CVLab-TUDelft/reproduced-papers">
             the github repository
           </a>
           .
