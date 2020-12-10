@@ -46,16 +46,38 @@ function About() {
         </p>
       </div>
       <div className="my-3">
-        <h1>Survey data</h1>
+        <h1>Paper</h1>
         <p className="lead">
-          We conducted two small anonymous surveys for two groups:
+          We wrote a paper titled{' '}
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://arxiv.org/abs/2012.01172"
+          >
+            ReproducedPapers.org: an open online repository for teaching and
+            structuring machine learning reproducibility
+          </a>{' '}
+          over the value and the necessity of an online reproductions
+          repository. The paper was published at the{' '}
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://rrpr2020.sciencesconf.org/"
+          >
+            RRPR 2020: Third ICPR Workshop on Reproducible Research in Pattern
+            Recognition
+          </a>
+          .
+        </p>
+        <p className="lead">
+          For the paper, we conducted two small anonymous surveys on two groups:
           <ol type="i">
             <li>
               students who recently added their reproduction to our repository,
             </li>
             <li>anybody identifying her/himself working in AI.</li>
           </ol>
-          Here you can download the data:{' '}
+          And here you can download the survey data:{' '}
           <a href={process.env.PUBLIC_URL + '/survey-data.zip'}>
             survey-data.zip
           </a>
