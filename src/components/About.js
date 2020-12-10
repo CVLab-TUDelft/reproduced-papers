@@ -155,12 +155,15 @@ function About() {
       <div className="my-3">
         <h1>Contributing</h1>
         <p className="lead">
-          There are two ways of contributing:
+          There are several ways of contributing:
           <ol>
-            <li>Submitting papers and reproductions,</li>
-            <li>Improving the web app.</li>
+            <li>Submitting your papers and reproductions,</li>
+            <li>Sharing the web site with your colleagues,</li>
+            <li>
+              Improving this web application by adding features and fixing bugs.
+            </li>
           </ol>
-          You can find the source code of the web app at{' '}
+          You can find the source code of the web application at{' '}
           <a href="https://github.com/CVLab-TUDelft/reproduced-papers">
             the github repository
           </a>
