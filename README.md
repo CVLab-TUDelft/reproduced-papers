@@ -29,9 +29,10 @@ And here you can download the survey data: [survey-data.zip](./public/survey-dat
 
 ## Contribution
 
-There are two ways of contributing:
+There are several ways of contributing:
 
-1. Submitting your papers and reproductions to [ReproducedPapers.org](),
-1. Improving the web app.
+1. Submitting your papers and reproductions to [ReproducedPapers.org](https://reproducedpapers.org),
+1. Sharing [ReproducedPapers.org](https://reproducedpapers.org) with your colleagues,
+1. Improving this web application by adding features and fixing bugs.
 
 Please don't hesitate to send pull request!
