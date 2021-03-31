@@ -38,7 +38,7 @@ function reducer(state, action) {
 /**
  * Fetches data with the given fetcher function
  * The params should be memoized, other wise for every new parameter it fetches
- * again and again. Be careful for inifine loop!
+ * again and again. Be careful for infinite loop!
  *
  * @param {function} fetcher fetches data from api
  * @param {any} params parameters for function
@@ -63,18 +63,23 @@ export default function useRequest(fetcher, params) {
 
   useEffect(() => {
     dispatch({ type: 'REQUEST' });
-    fetcher({ ...params })
-      .then(data => {
-        if (!willUnmount.current) {
-          dispatch({ type: 'SUCCESS', data });
-        }
-      })
-      .catch(error => {
-        if (!willUnmount.current) {
-          dispatch({ type: 'ERROR', error });
-          onError && onError(error);
-        }
-      });
+    const result = fetcher({ ...params });
+    if (!result) {
+      dispatch({ type: 'SUCCESS', data: null });
+    } else {
+      result
+        .then(data => {
+          if (!willUnmount.current) {
+            dispatch({ type: 'SUCCESS', data });
+          }
+        })
+        .catch(error => {
+          if (!willUnmount.current) {
+            dispatch({ type: 'ERROR', error });
+            onError && onError(error);
+          }
+        });
+    }
   }, [fetcher, onError, params]);
 
   function fetchMore() {

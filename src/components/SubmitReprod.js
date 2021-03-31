@@ -15,10 +15,10 @@ function SubmitReprod() {
   const firebase = useFirebase();
 
   // fetch paper
-  const paperFetcher = useCallback(() => firebase.getPaper(selected), [
-    selected,
-    firebase,
-  ]);
+  const paperFetcher = useCallback(
+    () => selected && firebase.getPaper(selected),
+    [selected, firebase]
+  );
   const { data: paper, loading: paperLoading } = useRequest(paperFetcher);
 
   // fetch tables
