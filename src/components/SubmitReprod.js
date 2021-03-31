@@ -33,7 +33,7 @@ function SubmitReprod() {
   return (
     <>
       <PaperPicker
-        title="Choose a paper to add reproduction"
+        title="Search and select a paper"
         action="Select"
         onSelect={paperId => {
           setShow(false);

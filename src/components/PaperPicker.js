@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
 
 import { useSearch } from '../hooks';
@@ -49,7 +50,12 @@ function PaperPicker({ title, action = 'Select', onSelect, isOpen, onClose }) {
     <button key="close" className="btn btn-secondary" onClick={onClose}>
       Close
     </button>,
-    <button key="action" className="btn btn-primary" onClick={handleSelect}>
+    <button
+      key="action"
+      className="btn btn-primary"
+      onClick={handleSelect}
+      disabled={!selected}
+    >
       {action}
     </button>,
   ];
@@ -67,33 +73,50 @@ function PaperPicker({ title, action = 'Select', onSelect, isOpen, onClose }) {
           onBlur={handleBlur}
           onFocus={() => setFocused(true)}
           autoComplete="off"
-          placeholder="Search a paper"
+          placeholder="Type to start searching"
         />
         {focused && (
-          <div className="list-group position-absolute w-100 mt-1">
+          <div
+            className="list-group position-absolute w-100 mt-1"
+            style={{ zIndex: 500 }}
+          >
             {searcher.loading && (
               <div className="list-group-item search-item">
                 <Spinner />
               </div>
             )}
-            {searcher.hits.length > 0 && (
+            {query && query.length >= 3 && (
               <>
-                {searcher.hits.map(hit => (
-                  <a
-                    key={hit.objectID}
-                    role="button"
-                    className="list-group-item list-group-item-action"
-                    onClick={event => {
-                      event.preventDefault();
-                      setQuery(hit.title);
-                      setSelected({ paperId: hit.objectID, paper: hit });
-                    }}
-                    href={`#${hit.objectID}`}
-                  >
-                    {hit.title}
-                  </a>
-                ))}
-
+                {searcher.hits.length > 0 &&
+                  searcher.hits.map(hit => (
+                    <a
+                      key={hit.objectID}
+                      role="button"
+                      className="list-group-item list-group-item-action"
+                      onClick={event => {
+                        event.preventDefault();
+                        setQuery(hit.title);
+                        setSelected({ paperId: hit.objectID, paper: hit });
+                      }}
+                      href={`#${hit.objectID}`}
+                    >
+                      {hit.title}
+                    </a>
+                  ))}
+                {searcher.hits.length === 0 && (
+                  <div className="list-group-item list-group-item-light text-center">
+                    If you couldn't find the paper you are searching, you may
+                    submit it here:
+                    <br />
+                    <Link
+                      className="btn btn-primary"
+                      to="/submit-paper"
+                      role="button"
+                    >
+                      Submit Paper
+                    </Link>
+                  </div>
+                )}
                 <div className="list-group-item list-group-item-light text-right">
                   <small>
                     Search by{' '}
